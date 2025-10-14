@@ -157,10 +157,6 @@ function CommentItem({
         isReply ? "ml-[1px]" : ""
       }`}
     >
-      {/*
-       */}
-      /* Replace the existing GeneralLink wrapper so it covers only avatar +
-      name */
       <div className="u-flex-center gap-sm">
         <GeneralLink
           href={`/users/${author.username}`}

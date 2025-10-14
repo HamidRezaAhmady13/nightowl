@@ -144,6 +144,8 @@ export default function CommentsModal({
 }) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const { data: comments, isLoading } = useComments({ postId });
+  const scrollToTop = () =>
+    listRef.current?.scrollTo({ top: 0, behavior: "smooth" });
 
   const [replyTo, setReplyTo] = useState<{
     id: string;
@@ -155,6 +157,11 @@ export default function CommentsModal({
   useModalStack(() => onClose());
 
   if (typeof window === "undefined") return null;
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus();
+    return () => prev?.focus();
+  }, []);
 
   return ReactDOM.createPortal(
     <div
@@ -207,14 +214,8 @@ export default function CommentsModal({
                         initialText={`@${replyTo.username} `}
                         onSuccess={() => {
                           setReplyTo(null);
-                          setTimeout(
-                            () =>
-                              listRef.current?.scrollTo({
-                                top: 0,
-                                behavior: "smooth",
-                              }),
-                            50
-                          );
+
+                          requestAnimationFrame(scrollToTop);
                         }}
                         className="w-full"
                       />
