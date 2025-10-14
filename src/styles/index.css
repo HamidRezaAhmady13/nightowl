@@ -1,0 +1,84 @@
+@import "./components/atoms.css";
+@import "./components/molecules.css";
+@import "./components/organism.css";
+@import "./utilities.css";
+@import "./base.css";
+
+@tailwind base;
+@tailwind components;
+
+html {
+  font-size: 62.5%;
+}
+
+textarea {
+  scrollbar-width: none; /* Firefox */
+  resize: none;
+}
+textarea::-webkit-scrollbar {
+  display: none; /* Safari/WebKit */
+}
+
+:root {
+  --toast-bg: #fff8e1;
+  --toast-text: #1e40af;
+  --focus-rgb-light: 255, 193, 7;
+  --focus-rgb-dark: 79, 70, 229;
+  --tw-shadow-color: var(--focus-rgb-light);
+}
+.dark {
+  /* --focus-ring: #6366f1; */
+  --toast-bg: #1e40af;
+  --toast-text: #fff8e1;
+  --tw-shadow-color: var(--focus-rgb-dark);
+}
+
+:focus {
+  outline: none;
+  /* box-shadow: 0 0 0 2px var(--focus-ring); */
+}
+
+/* 1. Smoothly reset autofill’s native yellow flash */
+input:-webkit-autofill,
+textarea:-webkit-autofill {
+  /* postpone the UA background swap so your box-shadow can paint first */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1f2937 !important;
+  box-shadow: inset 0 0 0 1000px #fff8e1,
+    /* your bg color */ var(--tw-ring-offset-shadow),
+    /* tailwind’s offset */ var(--tw-ring-shadow) /* tailwind’s ring */ !important;
+  /* transition: 500s ease-in-out 0s; */
+  transition: background-color 0.5s ease-in-out 0s,
+    box-shadow 0.5s ease-in-out 0s !important;
+}
+
+.dark input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e5e7eb !important;
+  /* -webkit-text-fill-color: #1a237e !important; */
+
+  /* same 1a237e inset as base, plus your offset & ring */
+  box-shadow: inset 0 0 0 1000px #1a237e, var(--tw-ring-offset-shadow),
+    var(--tw-ring-shadow) !important;
+
+  /* re-apply your transition so the ring animates in */
+  transition: background-color 0.5s ease-in-out 0s,
+    box-shadow 0.5s ease-in-out 0s !important;
+}
+/* 2. Force your desired background & text color via a huge inset box-shadow */
+input:-webkit-autofill {
+  -webkit-box-shadow: inset 0 0 0 1000px #fff8e1 !important;
+  box-shadow: inset 0 0 0 1000px #fff8e1 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* 3. Dark-mode version (if you scope dark-mode via a .dark class) */
+.dark input:-webkit-autofill {
+  -webkit-box-shadow: inset 0 0 0 1000px #1a237e !important;
+  box-shadow: inset 0 0 0 1000px #1a237e !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+}
+
+@tailwind utilities;

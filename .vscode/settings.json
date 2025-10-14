@@ -1,0 +1,13 @@
+{
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "css.validate": false,
+  "editor.inlineSuggest.enabled": true,
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.experimental.configFile": "tailwind.config.js",
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#045353",
+    "titleBar.inactiveBackground": "#035652"
+  }
+}

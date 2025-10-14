@@ -1,0 +1,290 @@
+ for hover thing and image preview
+// "use client";
+
+// import { useQuery } from "@tanstack/react-query";
+// import { useParams } from "next/navigation";
+// import api from "@/lib/api";
+// import Image from "next/image";
+// import Spinner from "@/components/Spinner";
+// import VideoPlayer from "@/components/VideoPlayer";
+// import { Player } from "react-tuby";
+// import "react-tuby/css/main.css";
+// import { useRef } from "react";
+// import { HoverThumbnailPreview } from "@/components/HoverThumbnailPreview";
+
+// const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+// export default function PostPage() {
+//   type MediaItem = {
+//     id: string;
+//     type: "image" | "video" | "file";
+//     url: string;
+//     quality?: string;
+//   };
+//   type PostDto = {
+//     id: string;
+//     content?: string;
+//     createdAt: string;
+//     media?: MediaItem[];
+//   };
+
+//   const videoRef = useRef<HTMLVideoElement>(null);
+//   const { post } = useParams(); // dynamic route param
+
+//   const { data, isLoading } = useQuery({
+//     queryKey: ["post", post],
+//     queryFn: async () => {
+//       const res = await api.get(`/posts/${post}`);
+//       return res.data as PostDto;
+//     },
+//   });
+
+//   if (isLoading) return <Spinner />;
+//   if (!data) return <p className="text-center text-gray-500">Post not found</p>;
+
+//   const { content, createdAt, media = [] } = data;
+
+//   const videoVariants = media.filter(
+//     (m) => m.type === "video" && m.quality && m.quality !== "original"
+//   );
+
+//   const originalVideo = media.find(
+//     (m) => m.type === "video" && m.quality === "original"
+//   );
+
+//   const poster = media.find(
+//     (m) =>
+//       m.type === "image" &&
+//       m.url.includes("thumbnail") &&
+//       m.url.endsWith(".jpg")
+//   );
+
+//   const images = media.filter(
+//     (m) =>
+//       m.type === "image" &&
+//       !m.url.includes("thumbnail") &&
+//       !m.url.includes("sprite")
+//   );
+
+//   const files = media.filter((m) => m.type === "file");
+
+//   // Extract IDs and base name for thumbnail URL building
+//   let userId = "";
+//   let postId = "";
+//   let videoBaseName = "";
+//   if (originalVideo) {
+//     const parts = originalVideo.url.split("/");
+//     // /uploads/user-<uid>/post-<pid>/original/<filename>
+//     userId =
+//       parts.find((p) => p.startsWith("user-"))?.replace("user-", "") || "";
+//     postId =
+//       parts.find((p) => p.startsWith("post-"))?.replace("post-", "") || "";
+//     videoBaseName = parts.pop()?.split("-original-")[0] || "";
+//   }
+//   console.log(
+//     `${API_URL}/uploads/user-${userId}/post-${postId}/thumbnails/${videoBaseName}-thumbnail-${30}s.webp`
+//   );
+
+//   return (
+//     <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
+//       <h1 className="text-2xl font-bold">Post Details</h1>
+
+//       <div className="p-4 dark:bg-cobalt-800 rounded space-y-4">
+//         {content && (
+//           <p className="text-cobalt-900 dark:text-amber-100">{content}</p>
+//         )}
+
+//         <div className="relative group space-y-4">
+//           {/* Images */}
+//           {images.map((img) => (
+//             <Image
+//               key={img.id}
+//               src={`${API_URL}${img.url}`}
+//               alt={`Post image ${img.id}`}
+//               width={600}
+//               height={400}
+//               className="rounded"
+//             />
+//           ))}
+
+//           {/* Video */}
+//           {videoVariants.length > 0 ? (
+//             <>
+//               <Player
+//                 src={videoVariants.map((v) => ({
+//                   quality: v.quality ?? "auto",
+//                   url: `${API_URL}${v.url}`,
+//                 }))}
+//                 // playerRef={videoRef}
+//                 poster={poster ? `${API_URL}${poster.url}` : undefined}
+//                 primaryColor="#c084fc"
+//               />
+//               <HoverThumbnailPreview
+//                 videoRef={videoRef}
+//                 seekBarSelector=".tuby-seek-bar"
+//                 intervalSec={30}
+//                 width={160}
+//                 height={90}
+//                 thumbUrlFn={(sec) =>
+//                   `${API_URL}/uploads/user-${userId}/post-${postId}/thumbnails/${videoBaseName}-thumbnail-${sec}s.webp`
+//                 }
+//               />
+//             </>
+//           ) : originalVideo ? (
+//             <VideoPlayer
+//               ref={videoRef}
+//               src={`${API_URL}${originalVideo.url}`}
+//               poster={poster ? `${API_URL}${poster.url}` : undefined}
+//             />
+//           ) : null}
+
+//           {/* Files */}
+//           {files.map((file) => (
+//             <FileLink key={file.id} url={`${API_URL}${file.url}`} />
+//           ))}
+
+//           <p className="text-sm text-gray-500">
+//             Posted on {new Date(createdAt).toLocaleString()}
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// function FileLink({ url }: { url: string }) {
+//   return (
+//     <div className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-cobalt-700 rounded shadow-sm">
+//       <svg
+//         className="w-6 h-6 text-cobalt-600 dark:text-amber-200"
+//         fill="none"
+//         stroke="currentColor"
+//         strokeWidth={2}
+//         viewBox="0 0 24 24"
+//       >
+//         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+//       </svg>
+//       <a
+//         href={url}
+//         target="_blank"
+//         rel="noopener noreferrer"
+//         className="text-sm text-cobalt-800 dark:text-amber-100 underline hover:text-cobalt-900 dark:hover:text-amber-300"
+//       >
+//         {url.split("/").pop()}
+//       </a>
+//     </div>
+//   );
+// }
+
+
+Perfect — here’s your React Query + TypeScript “Frustration Survival Kit” Cheat Sheet 🛠️ Keep this handy so next time you don’t lose two days to overload errors and mystery UI bugs.
+
+1. First Question: Do I Even Need onSuccess?
+Yes → I have a side effect that should run only when the query succeeds (e.g., seed another cache, log analytics, show a toast).
+
+No → I can just watch data in a useEffect and run my logic there. (This sidesteps overload typing issues entirely.)
+
+2. Safest useQuery Patterns in v5
+A. Object Form (most reliable)
+ts
+useQuery({
+  queryKey: ["key"] as const,
+  queryFn,
+  onSuccess, // if needed
+  initialData,
+  enabled
+})
+B. Explicitly Typed Options
+ts
+const options: UseQueryOptions<DataType, Error, DataType, ["key"]> = {
+  queryKey: ["key"],
+  queryFn,
+  onSuccess: (data) => { /* ... */ }
+};
+useQuery(options);
+C. Escape Hatch
+If TS still fights you → remove onSuccess and use:
+
+ts
+useEffect(() => {
+  if (data) { /* ... */ }
+}, [data]);
+3. Cache Seeding Pattern
+For instant detail-page loads from feed data:
+
+Feed hook:
+
+ts
+useEffect(() => {
+  if (data) {
+    data.forEach((item) => {
+      queryClient.setQueryData(["detail", item.id], item);
+    });
+  }
+}, [data, queryClient]);
+Detail hook:
+
+ts
+initialData: () => {
+  const list = queryClient.getQueryData(["list"]);
+  return list?.find((i) => i.id === id);
+}
+4. Common Overload Traps
+Passing (key, { queryFn, onSuccess }) → TS thinks you’re using the wrong overload.
+
+Forgetting as const on queryKey → TS widens it to string[] and breaks inference.
+
+Mixing initialData and onSuccess without explicit generics → TS picks the “DefinedInitialData” overload that doesn’t have onSuccess.
+
+5. Quick Debug Checklist
+Imports — missing CSS or helper imports can cause “UI bugs” that look like logic errors.
+
+Cache Keys — must match exactly (["post", id] vs ["posts"]).
+
+Network Tab — confirm data is actually loading.
+
+DevTools — check if the cache contains what you expect.
+
+6. Mindset
+When TS errors feel nonsensical:
+
+It’s often not your logic — it’s the type system picking the wrong overload.
+
+Either force the type or bypass the overload with plain React patterns.
+
+Don’t be afraid to move logic into useEffect if it unblocks you.
+
+
+<div class="part auxiliarybar basepanel left pane-composite-part" id="workbench.parts.auxiliarybar"  
+
+
+/* (['"`])(?=[\s\S]*\bflex\b)(?=[\s\S]*\bflex-1\b)(?=[\s\S]*\bgap-4\b)(?=[\s\S]*\bmb-4\b)[\s\S]*?\1 */
+ 
+
+1. Text-role hierarchy
+Think of your copy as layered information. Assign each role a meaningful name so you stay consistent across components:
+
+Primary text • Body copy, paragraphs, key labels • Must meet 4.5:1 contrast against its background
+
+Secondary text • Captions, hints, metadata (timestamps, form labels) • Ideally 3:1 (if large enough) or stay close to 4.5:1 for small sizes
+
+Tertiary text • Disabled states, placeholders, muted notes • Can drop down to 2.5:1 for very small hints—but use sparingly
+3. Jonas’s contrast rules refresher
+From the course you saw 18 months ago (shout-out to Jonas), remember:
+
+Small text (<18 px normal, <14 px bold) demands ≥4.5:1 contrast.
+
+Large text (≥18 px normal, ≥14 px bold) can relax to ≥3:1.
+
+Decorative or disabled text can dip to 2.5:1—but only if it doesn’t carry essential meaning.
+
+Always test against the actual background color—not white! (Your gradient stops matter.)
+
+for primary contrast 12-7
+
+Extra-small (<12 px) 10:1+
+Small/Body (12–16 px normal, 10–14 px bold) 7:1+
+Medium/Secondary (16–18 px normal, 14–18 px bold) 4.5:1–7:1
+Large/Display (≥18 px normal, ≥14 px bold) 3:1+
+
+fulieUploadInput focus enter doesnt work!
