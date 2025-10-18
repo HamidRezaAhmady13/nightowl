@@ -43,7 +43,7 @@ export type CommentItemData = CommentWithLikeState;
 
 export type CommentItemUIProps = {
   isReply?: boolean;
-  onReply: (id: string, username: string, text: string) => void;
+  // onReply: (id: string, username: string, text: string) => void;
   parentIdForQuery?: string;
   postId: string; // Add postId here if needed in the UI component
 };

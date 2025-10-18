@@ -288,3 +288,16 @@ Medium/Secondary (16–18 px normal, 14–18 px bold) 4.5:1–7:1
 Large/Display (≥18 px normal, ≥14 px bold) 3:1+
 
 fulieUploadInput focus enter doesnt work!
+
+
+
+ 
+
+
+        RAVENTHRONE > git add .
+RAVENTHRONE > git commit -m "comments"
+[main ce4571b] comments
+ 2 files changed, 9 insertions(+), 12 deletions(-)
+RAVENTHRONE > git push -u origin HEAD
+Enumerating objects: 15, done.
+
