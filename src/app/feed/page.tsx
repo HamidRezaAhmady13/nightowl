@@ -20,6 +20,7 @@ export default function FeedPage() {
           key={post.id}
           post={post}
           onCommentClick={() => setActivePostId(post.id)}
+          mode={"feed"}
         />
       ))}
 

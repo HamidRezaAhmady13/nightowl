@@ -12,8 +12,15 @@ import {
   getPosterImage,
 } from "@/app/utils/extractPostMedia";
 import { API_URL } from "@/features/lib/api";
+import PostGallery from "./PostGallery";
 
-export default function PostMedia({ post }: { post: Post }) {
+export default function PostMedia({
+  post,
+  mode,
+}: {
+  post: Post;
+  mode?: string;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const originalVideo = getOriginalVideo(post);
@@ -33,23 +40,14 @@ export default function PostMedia({ post }: { post: Post }) {
   }, [post.id]);
 
   return (
-    <div className="space-y-md  ">
-      {images.map((img) => (
-        <Image
-          key={img.id}
-          src={`${API_URL}${img.url}`}
-          alt=""
-          width={600}
-          height={400}
-          className="rounded-2xl w-full"
-        />
-      ))}
+    <div className="space-y-md   ">
+      {images && <PostGallery mode={mode} images={images} />}
 
       {videoVariants.length > 0 && (
         <>
           <div
             id={`video-container-${post.id}`}
-            className="overflow-hidden rounded-2xl w-full "
+            className="overflow-hidden rounded-2xl w-full  "
           >
             <Player
               src={videoVariants.map((v) => ({

@@ -40,24 +40,27 @@ export default function CommentsModal({
 
   useModalStack(() => onClose());
 
-  if (typeof window === "undefined") return null;
+  // if (typeof window === "undefined") return null;
+  if (typeof window !== "undefined") {
+    window.addEventListener("load", () => {
+      console.log("PAGE LOAD focused element:", document.activeElement);
+      console.log(
+        "focused element id/class:",
+        (document.activeElement as HTMLElement)?.id,
+        (document.activeElement as HTMLElement)?.className
+      );
+    });
+  }
+
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
-    dialogRef.current?.focus();
+    dialogRef.current?.focus({ preventScroll: true });
     return () => prev?.focus();
   }, []);
 
-  useEffect(() => {
-    console.log("replyTo updated", replyTo);
-  }, [replyTo]);
-
-  useEffect(() => {
-    console.log("DEBUG_MODAL_REPLY_TO", replyTo);
-  }, [replyTo]);
-
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-[110] u-flex-center" // ensure higher z than parent modal
+      className="fixed inset-0 z-[110] u-flex-center   " // ensure higher z than parent modal
       aria-modal="true"
       role="presentation"
     >
@@ -72,9 +75,10 @@ export default function CommentsModal({
         ref={dialogRef}
         role="dialog"
         aria-label="Comments"
-        className="relative z-10 u-bg-deep rounded-lg w-full h-full sm:w-[60vw] sm:h-auto sm:max-w-xl sm:max-h-[80vh] flex flex-col"
+        className="relative   u-bg-deep  z-10 rounded-lg w-full h-full sm:w-[60vw] sm:h-auto sm:max-w-xl sm:max-h-[80vh] flex flex-col"
         onPointerDown={(e) => e.stopPropagation()}
       >
+        {/* */}
         <div className="p-md flex-1 overflow-y-auto">
           <div className="u-flex-between mb-md">
             <h2 className="u-text-lg u-text-secondary">Comments</h2>
@@ -112,6 +116,7 @@ export default function CommentsModal({
         <div className="border-t u-border p-md w-full">
           <CommentForm
             postId={postId}
+            autoFocus={true}
             onSuccess={() => {
               /* optional */
             }}

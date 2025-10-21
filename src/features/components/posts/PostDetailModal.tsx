@@ -38,7 +38,8 @@ export default function PostDetailModal({
         onClose?.();
       }}
     >
-      <div className="max-w-3xl mx-auto py-xl px-md space-y-lg  ">
+      <div className="max-w-3xl mx-auto py-xs px-md space-y-md   ">
+        {/* <div className="max-h-[54vh]"> */}
         <PostShell post={post} onCommentClick={() => setIsOpenModal(true)} />
         {isOpenModal && (
           <CommentsModal
@@ -47,6 +48,7 @@ export default function PostDetailModal({
           />
         )}
       </div>
+      {/* </div> */}
     </PostModal>
   );
 }

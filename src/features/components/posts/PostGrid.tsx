@@ -1,27 +1,25 @@
-// src/app/test/posts-grid/page.tsx
-"use client";
-import React, { useState } from "react";
+import { useState } from "react";
+import PostTile from "./PostTile";
 import { useProfilePosts } from "@/features/hooks/useProfilePosts";
-import PostTile from "@/features/components/posts/PostTile";
-import Spinner from "@/features/components/shared/Spinner";
-import { useRouter } from "next/navigation";
+import Spinner from "../shared/Spinner";
 import Button from "../shared/Button";
+import { useRouter } from "next/navigation";
 
-export default function PostsGrid() {
-  const [cursor, setCursor] = useState<string | undefined>(undefined);
-  const { items, nextCursor, loading, error } = useProfilePosts({
-    limit: 24,
-    cursor,
-  });
+export default function PostsGrid({ username }: { username?: string }) {
+  const [limit] = useState(21);
+  const { items, loading, error, hasMore, loadMore, reload, reset } =
+    useProfilePosts({ limit, username });
+
   const router = useRouter();
 
-  if (loading)
+  if (loading && items.length === 0)
     return (
       <div className="p-lg">
         <Spinner />
       </div>
     );
-  if (error)
+
+  if (error && items.length === 0)
     return <div className="p-lg u-text-error">Error loading posts</div>;
 
   return (
@@ -44,19 +42,21 @@ export default function PostsGrid() {
           height={"sm"}
           className="w-1/6"
           onClick={() => {
-            if (!nextCursor) return;
-            setCursor(nextCursor);
+            loadMore();
           }}
-          disabled={!nextCursor}
+          disabled={!hasMore || loading}
         >
-          Load more
+          {loading ? "Loading..." : "Load more"}
         </Button>
+
         <Button
           className="w-1/6"
           size={"xs"}
           height={"sm"}
           onClick={() => {
-            setCursor(undefined);
+            // reset list locally and refetch first page
+            reset();
+            reload();
           }}
         >
           Reset

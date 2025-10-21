@@ -14,7 +14,12 @@ import PostsGrid from "@/features/components/posts/PostGrid";
 import OverlayRoutes from "@/features/components/OverlayRoutes";
 
 export default function UserProfilePage() {
-  const { username } = useParams();
+  const params = useParams();
+  const rawUsername = params?.username;
+  const username = Array.isArray(rawUsername)
+    ? rawUsername[0]
+    : rawUsername ?? undefined;
+
   const queryClient = useQueryClient();
   const { data: currentUser } = useCurrentUser();
   const { data: profileUser, isLoading } = useQuery({
@@ -73,7 +78,7 @@ export default function UserProfilePage() {
           />
         )}
       <UserHeader {...headerProps} />
-      <PostsGrid />
+      <PostsGrid username={username} />
       <OverlayRoutes />
     </div>
   );

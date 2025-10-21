@@ -2,7 +2,6 @@ export * from "./user.types";
 export * from "./post.types";
 export * from "./media.types";
 export * from "./enums";
-export * from "./signup.types";
 export * from "./comment.types";
 export * from "./form.types";
 // export * from "../components/shared/button.types";

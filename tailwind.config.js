@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "class",
+  images: {
+    domains: ["api.example.com", "cdn.example.com"],
+  },
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
     "./src/styles/**/*.css", // fixed glob

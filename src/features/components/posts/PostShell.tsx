@@ -13,12 +13,14 @@ type PostCardProps = {
   post: Post;
   onNavigate?: () => void;
   onCommentClick?: () => void;
+  mode?: string;
 };
 
 export default function PostShell({
   post,
   onNavigate,
   onCommentClick,
+  mode,
 }: PostCardProps) {
   const { data: currentUser } = useCurrentUser();
   if (!currentUser) return null;
@@ -35,12 +37,12 @@ export default function PostShell({
       onKeyDown={
         isInteractive ? (e) => e.key === "Enter" && handleNavigate() : undefined
       }
-      className={`relative p-md rounded space-y-md ${
+      className={`relative p-xxs rounded space-y-xs mb-md ${
         isInteractive ? "cursor-pointer u-focus-visible" : ""
       }`}
     >
       <PostHeader post={post} />
-      <PostMedia post={post} />
+      <PostMedia post={post} mode={mode} />
       <PostFiles files={post.media?.filter((m) => m.type === "file")} />
       <PostContent post={post} />
 

@@ -16,3 +16,9 @@ export type ThumbnailBaseProps = {
   width: number;
   height: number;
 };
+
+export type PostGalleryMedia = Media & {
+  width?: number;
+  height?: number;
+  alt?: string;
+};

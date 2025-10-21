@@ -102,33 +102,39 @@ export default function PostModal({
     <div
       ref={overlayRef}
       onMouseDown={handleOverlayMouseDown}
-      className="fixed inset-0 z-50 u-flex-center p-lg"
+      className="fixed inset-0 z-50 u-flex-center p-lg  "
       aria-modal="true"
       role="presentation"
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-
+      {/* max-h-[44vh] mt-md */}
       <div
         ref={dialogRef}
         role="dialog"
         aria-label={ariaLabel}
         onPointerDown={(e) => e.stopPropagation()}
-        className="relative z-10 w-full max-w-4xl u-bg-deep rounded-md shadow-lg"
+        className="relative z-10 w-full max-w-4xl u-bg-deep rounded-md shadow-lg  "
+        style={{
+          maxHeight: "100vh",
+          minHeight: "95vh",
+        }}
       >
         <div className="p-md">
           <button
             aria-label="Close"
             onClick={onClose}
-            className="absolute right-md top-md rounded p-xs u-text-lg u-text-secondary-soft focus:outline-none"
+            className="absolute right-md top-md rounded p-xs u-text-lg u-text-secondary-soft focus:outline-none "
           >
             ✕
-          </button>
-          <div>{children}</div>
+          </button>{" "}
+          <div className="px-md      overflow-auto " style={{ flex: 1 }}>
+            <div className="  ">{children}</div>
+          </div>
         </div>
       </div>
     </div>
   );
-
+  // overflow-auto
   if (typeof window === "undefined") return null;
   return ReactDOM.createPortal(modal, document.body);
 }

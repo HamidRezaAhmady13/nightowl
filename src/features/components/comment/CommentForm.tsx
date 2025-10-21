@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import FormInput from "../forms/FormInput";
 import { useAddComment } from "@/features/hooks/useAddComment";
 import Button from "../shared/Button";
@@ -15,6 +15,7 @@ export default function CommentForm({
   initialText = "",
   onSuccess,
   className,
+  autoFocus,
 }: CommentFormProps) {
   const [commentText, setCommentText] = useState(initialText || "");
   const addCommentMutation = useAddComment();
@@ -22,23 +23,10 @@ export default function CommentForm({
   const submittingRef = useRef(false);
   const queryClient = useQueryClient();
 
-  // Focus reliably when mounted or when initialText changes (works inside portals)
-  useLayoutEffect(() => {
-    setCommentText(initialText || "");
-    const t = setTimeout(() => inputRef.current?.focus(), 0);
-    return () => clearTimeout(t);
-  }, [initialText]);
-
   const doSubmit = () => {
     if (submittingRef.current) return;
     if (!commentText.trim()) return;
     submittingRef.current = true;
-    console.log("Submitting comment payload:", {
-      text: commentText,
-      parentCommentId,
-      postId,
-    });
-    // console.log("create-payload", { text, postId, parentCommentId })
 
     addCommentMutation.mutate(
       { text: commentText, parentCommentId, postId },
@@ -146,7 +134,7 @@ export default function CommentForm({
     >
       <div className="flex-1 h-2xl u-flex-center">
         <FormInput
-          autoFocus={true}
+          autoFocus={autoFocus}
           ref={inputRef}
           value={commentText}
           placeholder="Write a comment..."
