@@ -1,7 +1,7 @@
 import "react-tuby/css/main.css";
 import "@/styles/index.css";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
 import { Toaster } from "react-hot-toast";
@@ -12,6 +12,7 @@ import Header from "@/features/components/header/Header";
 import { AppShell } from "@/features/components/layout/AppShell";
 import { PageRow } from "@/features/components/layout/PageRow";
 import { PageMain } from "@/features/components/layout/PageMain";
+import ClientErrorCapture from "@/features/components/ClientErrorCapture";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -47,6 +48,7 @@ export default async function RootLayout({
     >
       <head></head>
       <body className="o-app-root min-h-screen  ">
+        <ClientErrorCapture />
         <ReactQueryProvider>
           <Toaster
             position="top-center"
@@ -65,10 +67,15 @@ export default async function RootLayout({
             }}
           />
           <AppShell>
-            <Header />
-            <PageRow>
-              <PageMain>{children}</PageMain>
-            </PageRow>
+            <div className="relative u-bg-main  h-24">
+              <Header />
+            </div>
+            {/* </div> */}
+            <div className="relative">
+              <PageRow>
+                <PageMain>{children}</PageMain>
+              </PageRow>
+            </div>
           </AppShell>
 
           <ReactQueryDevtools initialIsOpen={false} />

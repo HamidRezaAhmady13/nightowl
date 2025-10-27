@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import PostShell from "@/features/components/posts/PostShell";
 import CommentsModal from "@/features/components/comment/CommentsModal";
 import Spinner from "@/features/components/shared/Spinner";

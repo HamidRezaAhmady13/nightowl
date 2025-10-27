@@ -28,7 +28,7 @@ function SearchBar({ className }: { className?: string }) {
   });
 
   return (
-    <div className={`relative h-full ${className ?? ""}`}>
+    <div className={`relative h-full u-bg-main ${className ?? ""}`}>
       <form onSubmit={handleSubmit} className="h-full flex">
         <SearchInput
           className={className}

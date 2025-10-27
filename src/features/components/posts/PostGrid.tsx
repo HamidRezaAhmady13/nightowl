@@ -6,7 +6,7 @@ import Button from "../shared/Button";
 import { useRouter } from "next/navigation";
 
 export default function PostsGrid({ username }: { username?: string }) {
-  const [limit] = useState(21);
+  const [limit] = useState(6);
   const { items, loading, error, hasMore, loadMore, reload, reset } =
     useProfilePosts({ limit, username });
 

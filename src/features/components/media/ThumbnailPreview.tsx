@@ -1,48 +1,52 @@
+// components/media/ThumbnailPreview.tsx
 "use client";
+import React, { RefObject, useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 
-import { useRef, useState } from "react";
-import { useHoverThumbnail } from "@/features/hooks/useHoverThumbnail";
-import { ThumbnailPreviewProps } from "./preview.types";
+type Props = {
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  videoRef?: RefObject<HTMLVideoElement | null>;
+  width?: number;
+  height?: number;
+};
 
-export function HoverThumbnailPreview({
-  videoRef,
-  thumbUrlFn,
-  intervalSec = 30,
-  seekBarSelector,
+export default function ThumbnailPreview({
+  canvasRef,
   width = 160,
   height = 90,
-}: ThumbnailPreviewProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [visible, setVisible] = useState(false);
-  const imageCache = useRef<Record<number, HTMLImageElement>>({});
+}: Props) {
+  const [mountEl, setMountEl] = useState<HTMLElement | null>(() =>
+    typeof document !== "undefined" ? document.body : null
+  );
 
-  useHoverThumbnail({
-    videoRef,
-    canvasRef,
-    thumbUrlFn,
-    seekBarSelector,
-    intervalSec,
-    width,
-    height,
-    setVisible,
-    imageCache,
-  });
+  useEffect(() => {
+    const updateMount = () => {
+      const fs = document.fullscreenElement;
+      setMountEl(fs && fs instanceof HTMLElement ? fs : document.body);
+    };
+    updateMount();
+    document.addEventListener("fullscreenchange", updateMount);
+    return () => document.removeEventListener("fullscreenchange", updateMount);
+  }, []);
 
-  return (
+  if (!mountEl) return null;
+
+  const canvas = (
     <canvas
       ref={canvasRef}
       width={width}
       height={height}
+      aria-hidden
       style={{
         position: "fixed",
-        display: visible ? "block" : "none",
+        left: 0,
+        top: 0,
         pointerEvents: "none",
-        zIndex: 9999,
-        transform: "translateX(-50%)",
-        border: "1px solid rgba(0,0,0,0.3)",
-        background: "#000",
-        borderRadius: "5px",
+        border: "4px solid #b1987f",
+        borderRadius: "3px",
       }}
     />
   );
+
+  return ReactDOM.createPortal(canvas, mountEl);
 }

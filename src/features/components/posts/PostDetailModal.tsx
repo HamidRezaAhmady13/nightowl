@@ -31,7 +31,6 @@ export default function PostDetailModal({
   return (
     <PostModal
       onClose={() => {
-        // prefer removing query param deterministically
         const url = new URL(window.location.href);
         url.searchParams.delete("postId");
         router.replace(url.pathname + url.search);
@@ -39,8 +38,11 @@ export default function PostDetailModal({
       }}
     >
       <div className="max-w-3xl mx-auto py-xs px-md space-y-md   ">
-        {/* <div className="max-h-[54vh]"> */}
-        <PostShell post={post} onCommentClick={() => setIsOpenModal(true)} />
+        <PostShell
+          post={post}
+          onCommentClick={() => setIsOpenModal(true)}
+          mode="modal"
+        />
         {isOpenModal && (
           <CommentsModal
             postId={post.id}
@@ -48,7 +50,6 @@ export default function PostDetailModal({
           />
         )}
       </div>
-      {/* </div> */}
     </PostModal>
   );
 }

@@ -6,6 +6,8 @@ export function PageRow({
   className?: string;
 }) {
   return (
-    <div className={`m-page-row mb-md text-xs   ${className}`}>{children}</div>
+    <div className={`m-page-row mb-md text-xs     ${className}`}>
+      {children}
+    </div>
   );
 }

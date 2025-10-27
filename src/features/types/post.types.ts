@@ -14,6 +14,8 @@ export type Post = {
   commentsCount: number;
 };
 
+export type PostMode = "feed" | "modal";
+
 export type PostActionsProps = {
   post: Post;
   currentUserId: string;
@@ -33,3 +35,7 @@ export type PostPreview = Pick<
 > & {
   imageUrl?: string | null;
 };
+
+export const SQUARE_RATIO = "aspect-[1/1]"; // replace with your real classes
+export const PORTRAIT_RATIO = "aspect-[3/4]";
+export const LANDSCAPE_RATIO = "aspect-[16/9]";

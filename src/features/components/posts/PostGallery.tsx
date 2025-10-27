@@ -1,20 +1,118 @@
+// import { API_URL } from "@/features/lib/api";
+// import {
+//   LANDSCAPE_RATIO,
+//   PORTRAIT_RATIO,
+//   PostGalleryMedia,
+//   PostMode,
+//   SQUARE_RATIO,
+// } from "@/features/types";
+// import Image from "next/image";
+// import { useState } from "react";
+
+// type Props = { images: PostGalleryMedia[]; mode?: PostMode };
+
+// export default function PostGallery({ images, mode = "feed" }: Props) {
+//   const [dims, setDims] = useState<Record<string, { w: number; h: number }>>(
+//     {}
+//   );
+//   const onLoad =
+//     (id: string) =>
+//     ({
+//       naturalWidth,
+//       naturalHeight,
+//     }: {
+//       naturalWidth: number;
+//       naturalHeight: number;
+//     }) =>
+//       setDims((prev) =>
+//         prev[id]?.w === naturalWidth && prev[id]?.h === naturalHeight
+//           ? prev
+//           : { ...prev, [id]: { w: naturalWidth, h: naturalHeight } }
+//       );
+
+//   return (
+//     <div className="flex flex-col items-center gap-4">
+//       {images.map((img) => {
+//         const known =
+//           img.width && img.height
+//             ? { w: img.width, h: img.height }
+//             : dims[img.id];
+//         const isVertical = known ? known.h > known.w : undefined;
+//         const isSquare = known ? known.h === known.w : false;
+//         const ratioClass =
+//           mode === "feed"
+//             ? isSquare
+//               ? SQUARE_RATIO
+//               : isVertical
+//               ? PORTRAIT_RATIO
+//               : LANDSCAPE_RATIO
+//             : "";
+//         const intrinsic = isVertical
+//           ? { width: 800, height: 1066 }
+//           : isSquare
+//           ? { width: 900, height: 900 }
+//           : { width: 1200, height: 900 };
+//         return (
+//           <div key={img.id} className="w-full max-w-3xl mx-auto">
+//             <div className="w-full flex items-center justify-center">
+//               {mode === "feed" ? (
+//                 <Image
+//                   src={`${API_URL}${img.url}`}
+//                   alt={img.alt ?? img.id}
+//                   fill
+//                   sizes="(min-width:1200px) 1000px, (min-width:768px) 70vw, 90vw"
+//                   className="object-cover object-center"
+//                   onLoad={(e) =>
+//                     onLoad(img.id)({
+//                       naturalWidth: e.currentTarget.naturalWidth,
+//                       naturalHeight: e.currentTarget.naturalHeight,
+//                     })
+//                   }
+//                 />
+//               ) : (
+//                 <Image
+//                   src={`${API_URL}${img.url}`}
+//                   alt={img.alt ?? img.id}
+//                   width={intrinsic.width}
+//                   height={intrinsic.height}
+//                   sizes="(min-width:1200px) 1000px, (min-width:768px) 70vw, 90vw"
+//                   className="rounded-2xl object-contain"
+//                   style={{
+//                     maxWidth: "100%",
+//                     height: "auto",
+//                     width: "auto",
+//                   }}
+//                   onLoad={(e) =>
+//                     onLoad(img.id)({
+//                       naturalWidth: e.currentTarget.naturalWidth,
+//                       naturalHeight: e.currentTarget.naturalHeight,
+//                     })
+//                   }
+//                 />
+//               )}
+//             </div>
+//           </div>
+//         );
+//       })}
+//     </div>
+//   );
+// }
+
 import { API_URL } from "@/features/lib/api";
-import { PostGalleryMedia } from "@/features/types";
-
+import {
+  LANDSCAPE_RATIO,
+  PORTRAIT_RATIO,
+  PostGalleryMedia,
+  PostMode,
+  SQUARE_RATIO,
+} from "@/features/types";
 import Image from "next/image";
+import React, { useState } from "react";
+import MediaWrapper from "./MediaWrapper";
 
-import { useState, useCallback } from "react";
+type Props = { images: PostGalleryMedia[]; mode?: PostMode };
 
-type Props = {
-  images: PostGalleryMedia[];
-  mode?: string; //"feed" | "modal"; // feed: cropped, fixed aspect thumbnails; modal: contain full image
-};
-
-const LANDSCAPE_RATIO = "aspect-[4/3]"; // 4:3
-const PORTRAIT_RATIO = "aspect-[3/4]"; // 3:4
-const SQUARE_RATIO = "aspect-square";
-
-export default function PostGallery({ images, mode }: Props) {
+export default function PostGallery({ images, mode = "feed" }: Props) {
   const [dims, setDims] = useState<Record<string, { w: number; h: number }>>(
     {}
   );
@@ -27,13 +125,12 @@ export default function PostGallery({ images, mode }: Props) {
     }: {
       naturalWidth: number;
       naturalHeight: number;
-    }) => {
-      setDims((prev) => {
-        if (prev[id]?.w === naturalWidth && prev[id]?.h === naturalHeight)
-          return prev;
-        return { ...prev, [id]: { w: naturalWidth, h: naturalHeight } };
-      });
-    };
+    }) =>
+      setDims((prev) =>
+        prev[id]?.w === naturalWidth && prev[id]?.h === naturalHeight
+          ? prev
+          : { ...prev, [id]: { w: naturalWidth, h: naturalHeight } }
+      );
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -44,8 +141,6 @@ export default function PostGallery({ images, mode }: Props) {
             : dims[img.id];
         const isVertical = known ? known.h > known.w : undefined;
         const isSquare = known ? known.h === known.w : false;
-
-        // Choose ratio box for feed (thumbnails) — modal ignores aspect-box and uses contain
         const ratioClass =
           mode === "feed"
             ? isSquare
@@ -53,51 +148,36 @@ export default function PostGallery({ images, mode }: Props) {
               : isVertical
               ? PORTRAIT_RATIO
               : LANDSCAPE_RATIO
-            : ""; // modal: no aspect box, show intrinsic image
-
-        // Intrinsic sizes for Next/Image (keeps good quality) — tuned per orientation
+            : "";
         const intrinsic = isVertical
-          ? { width: 800, height: 1066 } // portrait
+          ? { width: 800, height: 1066 }
           : isSquare
-          ? { width: 900, height: 900 } // square
-          : { width: 1200, height: 900 }; // landscape
-
-        // max image height when in modal (fills available modal content)
-        const modalMaxHeight = "calc(85vh - 160px)";
+          ? { width: 900, height: 900 }
+          : { width: 1200, height: 900 };
 
         return (
           <div key={img.id} className="w-full max-w-3xl mx-auto">
-            <div
-              className={`w-full flex items-center justify-center ${
-                mode === "feed" ? "" : ""
-              }`}
-            >
+            <div className="w-full flex items-center justify-center">
               {mode === "feed" ? (
-                // feed: fixed aspect box, image covers and crops to maintain grid
-                <div
-                  className={`relative w-full ${ratioClass} overflow-hidden rounded-2xl`}
-                >
+                <MediaWrapper mode={mode} aspectClass={ratioClass}>
                   <Image
                     src={`${API_URL}${img.url}`}
                     alt={img.alt ?? img.id}
                     fill
                     sizes="(min-width:1200px) 1000px, (min-width:768px) 70vw, 90vw"
                     className="object-cover object-center"
-                    onLoadingComplete={onLoad(img.id)}
+                    onLoad={(e) =>
+                      onLoad(img.id)({
+                        naturalWidth: (e.currentTarget as HTMLImageElement)
+                          .naturalWidth,
+                        naturalHeight: (e.currentTarget as HTMLImageElement)
+                          .naturalHeight,
+                      })
+                    }
                   />
-                </div>
+                </MediaWrapper>
               ) : (
-                // modal: show whole image, scale up to available space but do not crop
-                <div
-                  style={{
-                    maxHeight: modalMaxHeight,
-                    overflow: "auto",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "100%",
-                  }}
-                >
+                <MediaWrapper mode={mode} aspectClass={ratioClass}>
                   <Image
                     src={`${API_URL}${img.url}`}
                     alt={img.alt ?? img.id}
@@ -105,10 +185,23 @@ export default function PostGallery({ images, mode }: Props) {
                     height={intrinsic.height}
                     sizes="(min-width:1200px) 1000px, (min-width:768px) 70vw, 90vw"
                     className="rounded-2xl object-contain"
-                    style={{ maxWidth: "100%", height: "auto", width: "auto" }}
-                    onLoadingComplete={onLoad(img.id)}
+                    // style={{ maxWidth: "100%", height: "auto", width: "auto" }}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "calc(85vh - 180px)",
+                      width: "auto",
+                      height: "auto",
+                    }}
+                    onLoad={(e) =>
+                      onLoad(img.id)({
+                        naturalWidth: (e.currentTarget as HTMLImageElement)
+                          .naturalWidth,
+                        naturalHeight: (e.currentTarget as HTMLImageElement)
+                          .naturalHeight,
+                      })
+                    }
                   />
-                </div>
+                </MediaWrapper>
               )}
             </div>
           </div>

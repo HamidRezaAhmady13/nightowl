@@ -9,9 +9,9 @@ import AvatarImage from "../shared/AvatarImage";
 export default function Header() {
   const { data: currentUser } = useCurrentUser();
   if (!currentUser) return null;
-
+  //
   return (
-    <header className="o-header mt-sm mb-xl px-md h-2xl  ">
+    <header className="o-header py-sm mb-xl px-md h-3xl  fixed z-50 u-bg-main top-0 left-0  w-full">
       <div className="m-user-wrapper group">
         {currentUser && (
           <>
@@ -35,7 +35,7 @@ export default function Header() {
         )}
       </div>
 
-      {currentUser && <SearchBar className="h-2xl" />}
+      {currentUser && <SearchBar className="h-2xl  " />}
     </header>
   );
 }

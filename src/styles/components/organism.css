@@ -6,7 +6,7 @@
     @apply flex flex-col px-md w-full;
   }
   .o-header {
-    @apply px-md flex justify-between items-stretch;
+    @apply px-md h-3xl flex justify-between items-stretch;
   }
   .o-post {
     @apply py-xl px-md;

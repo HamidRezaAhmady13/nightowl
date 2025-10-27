@@ -2,7 +2,7 @@
 @import "./components/molecules.css";
 @import "./components/organism.css";
 @import "./utilities.css";
-@import "./base.css";
+/* @import "./base.css"; */
 
 @tailwind base;
 @tailwind components;

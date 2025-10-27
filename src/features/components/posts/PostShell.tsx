@@ -1,6 +1,6 @@
 "use client";
 
-import { Post } from "@/features/types";
+import { Post, PostMode } from "@/features/types";
 import { PostHeader } from "./PostHeader";
 import { PostContent } from "./PostContent";
 import { useCurrentUser } from "@/features/hooks/useCurrentUser";
@@ -8,19 +8,20 @@ import PostMedia from "./PostMedia";
 import PostFiles from "./PostFiles";
 import PostActions from "./PostActions";
 import PostBorderBottom from "./PostBorderBottom";
+import MediaWrapper from "./MediaWrapper";
 
 type PostCardProps = {
   post: Post;
   onNavigate?: () => void;
   onCommentClick?: () => void;
-  mode?: string;
+  mode?: PostMode;
 };
 
 export default function PostShell({
   post,
   onNavigate,
   onCommentClick,
-  mode,
+  mode = "feed",
 }: PostCardProps) {
   const { data: currentUser } = useCurrentUser();
   if (!currentUser) return null;
@@ -37,12 +38,17 @@ export default function PostShell({
       onKeyDown={
         isInteractive ? (e) => e.key === "Enter" && handleNavigate() : undefined
       }
+      style={mode === "modal" ? { marginBottom: 0 } : undefined}
       className={`relative p-xxs rounded space-y-xs mb-md ${
         isInteractive ? "cursor-pointer u-focus-visible" : ""
       }`}
     >
       <PostHeader post={post} />
-      <PostMedia post={post} mode={mode} />
+      {/* <PostMedia post={post} mode={mode} /> */}
+      <MediaWrapper mode={mode} aspectClass={""}>
+        <PostMedia post={post} mode={mode} />
+      </MediaWrapper>
+
       <PostFiles files={post.media?.filter((m) => m.type === "file")} />
       <PostContent post={post} />
 
