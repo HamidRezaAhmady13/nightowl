@@ -5,10 +5,7 @@ import { PostHeader } from "./PostHeader";
 import { PostContent } from "./PostContent";
 import { useCurrentUser } from "@/features/hooks/useCurrentUser";
 import PostMedia from "./PostMedia";
-import PostFiles from "./PostFiles";
 import PostActions from "./PostActions";
-import PostBorderBottom from "./PostBorderBottom";
-import MediaWrapper from "./MediaWrapper";
 
 type PostCardProps = {
   post: Post;
@@ -32,36 +29,46 @@ export default function PostShell({
 
   return (
     <div
+      className={`relative rounded bg-transparent  min-w-[50rem]`}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "80vh", // fill modal's main area
+      }}
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       onClick={isInteractive ? handleNavigate : undefined}
       onKeyDown={
         isInteractive ? (e) => e.key === "Enter" && handleNavigate() : undefined
       }
-      style={mode === "modal" ? { marginBottom: 0 } : undefined}
-      className={`relative p-xxs rounded space-y-xs mb-md ${
-        isInteractive ? "cursor-pointer u-focus-visible" : ""
-      }`}
     >
-      <PostHeader post={post} />
-      {/* <PostMedia post={post} mode={mode} /> */}
-      <MediaWrapper mode={mode} aspectClass={""}>
-        <PostMedia post={post} mode={mode} />
-      </MediaWrapper>
+      <div style={{ flex: "0 0 auto" }}>
+        <PostHeader post={post} />
+      </div>
 
-      <PostFiles files={post.media?.filter((m) => m.type === "file")} />
-      <PostContent post={post} />
-
-      <PostActions
-        post={post}
-        currentUserId={currentUser.id}
-        onCommentClick={(e) => {
-          e.stopPropagation();
-          handleComment();
+      <div
+        style={{
+          flex: "1 1 auto",
+          overflow: "auto",
+          minHeight: 0,
+          padding: "12px 0",
         }}
-      />
+      >
+        <PostMedia post={post} mode={mode} />
+        <PostContent post={post} />
+        {/* any inline content will scroll here */}
+      </div>
 
-      <PostBorderBottom />
+      <div style={{ flex: "0 0 auto" }}>
+        <PostActions
+          post={post}
+          currentUserId={currentUser.id}
+          onCommentClick={(e) => {
+            e.stopPropagation();
+            handleComment();
+          }}
+        />
+      </div>
     </div>
   );
 }

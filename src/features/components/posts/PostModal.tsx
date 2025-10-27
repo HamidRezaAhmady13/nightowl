@@ -10,7 +10,6 @@ type ModalProps = {
   onClose: () => void;
   ariaLabel?: string;
 };
-const modalMaxHeight = "calc(85vh - 160px)";
 const FOCUSABLE_SELECTOR =
   'a[href], area[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
 
@@ -92,51 +91,55 @@ export default function PostModal({
       role="presentation"
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
       <div
         ref={dialogRef}
         role="dialog"
         aria-label={ariaLabel}
         onPointerDown={(e) => e.stopPropagation()}
-        className="relative z-10 w-full max-w-4xl u-bg-deep rounded-md shadow-lg"
+        className="relative z-10 w-full max-w-4xl u-bg-deep rounded-md shadow-lg min-w-[70rem]  "
         style={{
-          maxHeight: "100vh",
-          minHeight: "95vh",
+          height: "95vh",
+          maxHeight: "95vh",
           display: "flex",
           flexDirection: "column",
         }}
       >
+        {/* header / close button area (fixed) */}
         <div
-          className="p-md"
           style={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            gap: 12,
+            position: "relative",
+            zIndex: 20,
+            padding: "16px 20px",
+            flex: "0 0 auto",
           }}
         >
-          <div style={{ position: "relative", zIndex: 2 }}>
-            <button
-              aria-label="Close"
-              onClick={onClose}
-              className="absolute right-md top-md rounded p-xs u-text-lg u-text-secondary-soft focus:outline-none"
-            >
-              ✕
-            </button>
-            <div>{/* header area stays here if needed */}</div>
-          </div>
-
-          <div
-            className="px-md"
-            style={{
-              flex: 1,
-              overflow: "auto",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+          <button
+            aria-label="Close"
+            onClick={onClose}
+            className="absolute right-md top-md rounded p-xs u-text-lg u-text-secondary-soft focus:outline-none"
           >
-            <div className="w-full">{children}</div>
-          </div>
+            ✕
+          </button>
+          {/* optional header slot if needed */}
+        </div>
+
+        {/* main content: gives Post a full-height area to layout inside */}
+        <div
+          className="flex items-center justify-center "
+          style={{
+            flex: "1 1 auto",
+            // display: "flex",
+            // flexDirection: "column",
+            overflow: "hidden",
+            minHeight: 0,
+            padding: "0 16px 16px 16px",
+            // alignItems: "stretch",
+            // justifyContent: "flex-center",
+          }}
+        >
+          {/* children should be a PostShell or Post component that fills this area */}
+          {children}
         </div>
       </div>
     </div>
@@ -145,3 +148,64 @@ export default function PostModal({
   if (typeof window === "undefined") return null;
   return ReactDOM.createPortal(modal, document.body);
 }
+
+//
+// <div
+//       ref={dialogRef}
+//       role="dialog"
+//       aria-label={ariaLabel}
+//       onPointerDown={(e) => e.stopPropagation()}
+//       className="relative z-10 w-full max-w-4xl u-bg-deep rounded-md shadow-lg"
+//       style={{
+//         maxHeight: "100vh",
+//         minHeight: "95vh",
+//         display: "flex",
+//         flexDirection: "column",
+//       }}
+//     >
+//       <div
+//         className="p-md"
+//         style={{
+//           display: "flex",
+//           flexDirection: "column",
+//           height: "100%",
+//           gap: 12,
+//         }}
+//       >
+//         <div style={{ position: "relative", zIndex: 20 }}>
+//           <button
+//             aria-label="Close"
+//             onClick={onClose}
+//             className="absolute right-md top-md rounded p-xs u-text-lg u-text-secondary-soft focus:outline-none"
+//           >
+//             ✕
+//           </button>
+//           {/* optional header insertion point */}
+//         </div>
+
+//         <div
+//           className="px-md"
+//           style={{
+//             flex: 1,
+//             overflow: "hidden", // media area will manage its scroll
+//             display: "flex",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             minHeight: 0,
+//           }}
+//         >
+//           <div
+//             style={{
+//               width: "100%",
+//               height: "100%",
+//               display: "flex",
+//               justifyContent: "center",
+//               alignItems: "center",
+//               minHeight: 0,
+//             }}
+//           >
+//             {children}
+//           </div>
+//         </div>
+//       </div>
+//     </div>

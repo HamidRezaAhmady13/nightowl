@@ -37,7 +37,7 @@ export default function PostDetailModal({
         onClose?.();
       }}
     >
-      <div className="max-w-3xl mx-auto py-xs px-md space-y-md   ">
+      <div className=" mx-auto py-xs   space-y-md     ">
         <PostShell
           post={post}
           onCommentClick={() => setIsOpenModal(true)}
