@@ -6,7 +6,10 @@ export function useUpdateTheme() {
 
   return useMutation({
     mutationFn: async (theme: "light" | "dark") => {
+      document.cookie = `theme=${theme}; path=/; SameSite=lax`;
+      document.documentElement.classList.toggle("dark", theme === "dark");
       const res = await api.patch("/users/theme", { theme });
+
       return res.data;
     },
     onSuccess: (data) => {

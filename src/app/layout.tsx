@@ -1,7 +1,7 @@
 import "react-tuby/css/main.css";
 import "@/styles/index.css";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
 import { Toaster } from "react-hot-toast";
@@ -12,7 +12,7 @@ import Header from "@/features/components/header/Header";
 import { AppShell } from "@/features/components/layout/AppShell";
 import { PageRow } from "@/features/components/layout/PageRow";
 import { PageMain } from "@/features/components/layout/PageMain";
-import ClientErrorCapture from "@/features/components/ClientErrorCapture";
+import SafeFullscreenShim from "@/features/components/SafeFullscreenShim";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -39,6 +39,9 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const theme = cookieStore.get("theme")?.value || "light";
+
+  // run once on client startup
+
   return (
     <html
       lang="en"
@@ -48,7 +51,6 @@ export default async function RootLayout({
     >
       <head></head>
       <body className="o-app-root min-h-screen  ">
-        <ClientErrorCapture />
         <ReactQueryProvider>
           <Toaster
             position="top-center"
@@ -66,6 +68,7 @@ export default async function RootLayout({
               },
             }}
           />
+          <SafeFullscreenShim />
           <AppShell>
             <div className="relative u-bg-main  h-24">
               <Header />

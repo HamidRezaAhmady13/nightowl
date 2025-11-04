@@ -1,4 +1,7 @@
-import { getSnappedTime, positionCanvas } from "./positionMath";
+import {
+  getSnappedTime,
+  positionCanvas,
+} from "../hooks/hoverThumbnails/hoverThumbnailUtils";
 import { drawOrLoadImage, prefetchNeighbours } from "./imageHelpers";
 
 export function handleMove({

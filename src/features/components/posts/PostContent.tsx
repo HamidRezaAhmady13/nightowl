@@ -18,7 +18,7 @@ export function PostContent({
 
   return (
     <>
-      <p>{contentToShow}</p>
+      <p className="mt-md">{contentToShow}</p>
       {post.content.length > MAX_LENGTH && (
         <Button
           onClick={(e) => {

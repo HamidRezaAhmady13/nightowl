@@ -1,7 +1,8 @@
+// components/PostMedia.tsx
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import { Player } from "react-tuby";
+import React, { useEffect, useRef, useState } from "react";
+// import PlayerThemed from "@/features/components/PlayerThemed";
 import { API_URL } from "@/features/lib/api";
 import {
   getVideoVariants,
@@ -10,14 +11,14 @@ import {
 } from "@/app/utils/extractPostMedia";
 import PostGallery from "./PostGallery";
 import type { Post, PostMode } from "@/features/types";
-import { useCanvasDraw } from "@/features/hooks/hverThumbnails/useCanvasDraw";
-import CanvasPortal from "@/features/hooks/hverThumbnails/CanvasPortal";
+
 import MediaWrapper from "./MediaWrapper";
 import {
   LANDSCAPE_RATIO,
   PORTRAIT_RATIO,
   SQUARE_RATIO,
 } from "@/features/types";
+import PlayerThemed from "./PlayerThemed";
 
 export default function PostMedia({
   post,
@@ -26,19 +27,26 @@ export default function PostMedia({
   post: Post;
   mode: PostMode;
 }) {
-  const demoImg = "/images/placeholder-square.png";
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const playerRootRef = useRef<HTMLDivElement | null>(null);
 
   const videoVariants = getVideoVariants(post);
   const poster = getPosterImage(post);
   const images = getPostImages(post);
-  const { redraw } = useCanvasDraw(canvasRef, {
-    imgSrc: demoImg,
-    width: 160,
-    height: 90,
-    visible: true,
-  });
+  const [isDark, setIsDark] = useState<boolean>(false);
+
+  useEffect(() => {
+    const m = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("theme="))
+      ?.split("=")[1];
+    const theme =
+      m ||
+      (document.documentElement.classList.contains("dark") ? "dark" : "light");
+    const color = theme === "dark" ? "#4f46e5" : "#ffa000";
+    document.documentElement.style.setProperty("--player-accent", color);
+  }, []);
+
   useEffect(() => {
     const container = document.getElementById(`video-container-${post.id}`);
     if (container) videoRef.current = container.querySelector("video");
@@ -67,54 +75,38 @@ export default function PostMedia({
           id={`video-container-${post.id}`}
         >
           <MediaWrapper mode={mode} aspectClass={ratioClass}>
-            {/* use relative media-fill in modal via CSS in MediaWrapper branch */}
-            {/* <div
-              className={
-                mode === "feed"
-                  ? "absolute inset-0 media-fill"
-                  : "relative media-fill"
-              }
-            >
-              <Player
-                src={videoVariants.map((v) => ({
-                  quality: v.quality ?? "auto",
-                  url: `${API_URL}${v.url}`,
-                }))}
-                poster={posterImg}
-                primaryColor="#c084fc"
-              />
-            </div> */}
             <div
               style={{
                 width: "100%",
                 height: "100%",
                 position: "relative",
-                zIndex: 30,
+                zIndex: 130,
               }}
             >
               <div
                 className="player-wrapper"
-                style={{ width: "100%", height: "100%" }}
+                ref={playerRootRef}
+                tabIndex={-1}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "1rem",
+                  overflow: "hidden",
+                }}
               >
-                <Player
+                <PlayerThemed
+                  keyboardShortcut={false}
                   src={videoVariants.map((v) => ({
                     quality: v.quality ?? "auto",
                     url: `${API_URL}${v.url}`,
                   }))}
                   poster={posterImg}
-                  primaryColor="#c084fc"
+                  isDark={isDark}
+                  themed={"var(--player-accent)"}
                 />
               </div>
             </div>
           </MediaWrapper>
-
-          <CanvasPortal
-            canvasRef={canvasRef}
-            width={160}
-            height={90}
-            postId={post.id}
-            onRemount={redraw}
-          />
         </div>
       )}
     </div>

@@ -33,7 +33,7 @@ export default function PostShell({
       style={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "80vh", // fill modal's main area
+        minHeight: `${mode === "modal" ? "80vh" : ""}`,
       }}
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
@@ -46,18 +46,33 @@ export default function PostShell({
         <PostHeader post={post} />
       </div>
 
-      <div
-        style={{
-          flex: "1 1 auto",
-          overflow: "auto",
-          minHeight: 0,
-          padding: "12px 0",
-        }}
-      >
-        <PostMedia post={post} mode={mode} />
-        <PostContent post={post} />
-        {/* any inline content will scroll here */}
-      </div>
+      {mode === "modal" && (
+        <div
+          style={{
+            flex: "1 1 auto",
+            overflow: "auto",
+            minHeight: 0,
+            padding: "12px 0",
+          }}
+        >
+          <PostMedia post={post} mode={mode} />
+          <PostContent post={post} />
+        </div>
+      )}
+
+      {mode === "feed" && (
+        <div
+          style={{
+            overflow: "auto",
+            minHeight: 0,
+            padding: "12px 0",
+          }}
+        >
+          <PostMedia post={post} mode={mode} />
+
+          <PostContent post={post} />
+        </div>
+      )}
 
       <div style={{ flex: "0 0 auto" }}>
         <PostActions

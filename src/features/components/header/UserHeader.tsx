@@ -67,7 +67,6 @@ export const UserHeader = ({
           )}
         </div>
       </div>{" "}
-      <OverlayRoutes />
     </div>
   );
 };
