@@ -1,4 +1,6 @@
-import { HoverPreviewSetupProps } from "@/features/components/media/HoverPreviewSetupProps.types";
+// import { HoverPreviewSetupProps } from "@/features/components/media/HoverPreviewSetupProps.types";
+
+import { HoverPreviewSetupProps } from "../components/media/preview.types";
 
 export function setupHoverPreview({
   bar,

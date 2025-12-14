@@ -6,14 +6,12 @@ import { flushSync } from "react-dom";
 
 import { buildFormData } from "@/features/utils/buildFormData";
 import { api } from "../lib/api";
-import { validateSignupForm } from "@/app/utils/validateSignupForm";
+
 import {
-  validateEmail,
-  validateOptionalUrl,
-  validatePassword,
-  validateUsername,
-} from "@/app/utils/validators";
-// import { signup } from "./authService";
+  clearRefreshInterval,
+  startRefreshInterval,
+} from "../utils/startRefreshInterval";
+import { validateSignupForm } from "../utils/validateSignupForm";
 
 export function useSignupForm() {
   const router = useRouter();
@@ -75,6 +73,8 @@ export function useSignupForm() {
       await api.post("/auth/signup", buildFormData(form));
       toast.success("Welcome aboard!");
       router.push("/feed");
+      clearRefreshInterval();
+      startRefreshInterval();
     } catch (err: any) {
       const msgs = err.response?.data?.error?.message;
       const first = Array.isArray(msgs)

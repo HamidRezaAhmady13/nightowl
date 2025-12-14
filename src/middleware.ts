@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { protectRoute } from "./features/lib/authGuard";
+
+const publicRoutes = [
+  "/login",
+  "/signup",
+  "/_next",
+  "/api/public",
+  "/auth/google",
+];
 
 export const config = {
-  // matcher: ["/:path*"],
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-  // matcher: ["/feed", "/upload", "/profile"],
 };
 
-export function middleware(request: NextRequest) {
-  const redirect = protectRoute(request);
-  if (redirect) return redirect;
-
+export function middleware(req: NextRequest) {
+  if (publicRoutes.some((p) => req.nextUrl.pathname.startsWith(p)))
+    return NextResponse.next();
+  const hasRefresh = !!req.cookies.get("refresh")?.value;
+  if (!hasRefresh) return NextResponse.redirect(new URL("/login", req.url));
   return NextResponse.next();
 }

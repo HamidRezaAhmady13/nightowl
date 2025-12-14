@@ -1,10 +1,10 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { api } from "@/features/lib/api";
+// import { api } from "@/app/lib/api";
 import { Post } from "@/features/types";
-import { useEffect } from "react";
 import { toSingleString } from "../lib/toSingleString";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import api from "../lib/api";
 export function usePostQuery(opts?: { id?: string }) {
   const params = useParams();
   const paramId = toSingleString(params?.post);
@@ -30,26 +30,15 @@ export function usePostQuery(opts?: { id?: string }) {
   });
 }
 
-export function usePostsQuery() {
-  const queryClient = useQueryClient();
+export function usePostsQuery(page: number = 1, limit: number = 2) {
+  return useQuery<{ items: Post[]; total: number }, Error>({
+    queryKey: ["posts", { page, limit }],
+    queryFn: async () =>
+      (await api.get(`/posts/feed?limit=${limit}&page=${page}`)).data as {
+        items: Post[];
+        total: number;
+      },
 
-  // 1) Run the feed fetch
-  const result = useQuery<Post[], Error>({
-    queryKey: ["posts"],
-    queryFn: async () => {
-      const res = await api.get("/posts/feed");
-      return res.data as Post[];
-    },
+    ...({ keepPreviousData: true } as unknown as Record<string, unknown>),
   });
-
-  // 2) As soon as we have data, seed the single-post cache
-  useEffect(() => {
-    if (result.data) {
-      result.data.forEach((p) => {
-        queryClient.setQueryData(["post", p.id], p);
-      });
-    }
-  }, [result.data, queryClient]);
-
-  return result;
 }

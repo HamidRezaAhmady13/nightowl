@@ -1,6 +1,10 @@
-import { api } from "@/features/lib/api";
-import { CommentWithLikeState, ToggleLikeVars } from "@/features/types";
+import {
+  CommentsCache,
+  CommentWithLikeState,
+  ToggleLikeVars,
+} from "@/features/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../lib/api";
 
 export function useToggleCommentLike(postId: string) {
   const queryClient = useQueryClient();
@@ -33,19 +37,29 @@ export function useToggleCommentLike(postId: string) {
           ])
         : undefined;
 
-      // Update the tree under top-level comments
-      queryClient.setQueryData<CommentWithLikeState[]>(
-        ["comments", postId],
-        (old) =>
-          old?.map((c) => updateCommentLikeState(c, commentId, liked)) ?? old
-      );
+      queryClient.setQueryData<CommentsCache>(["comments", postId], (old) => {
+        if (!old) return old;
+        const pages = old.pages.map((p) => ({
+          ...p,
+          data: p.data.map((c) => updateCommentLikeState(c, commentId, liked)),
+        }));
+        return { ...old, pages };
+      });
 
       // Update the replies list if applicable
       if (parentCommentId) {
-        queryClient.setQueryData<CommentWithLikeState[]>(
+        queryClient.setQueryData<CommentsCache>(
           ["replies", parentCommentId],
-          (old) =>
-            old?.map((r) => updateCommentLikeState(r, commentId, liked)) ?? old
+          (old) => {
+            if (!old) return old;
+            const pages = old.pages.map((p) => ({
+              ...p,
+              data: p.data.map((r) =>
+                updateCommentLikeState(r, commentId, liked)
+              ),
+            }));
+            return { ...old, pages };
+          }
         );
       }
 
@@ -88,13 +102,10 @@ function updateCommentLikeState(
       likedByCurrentUser: !liked,
     };
   }
-  if (comment.childComments?.length) {
-    return {
-      ...comment,
-      childComments: comment.childComments.map((child) =>
-        updateCommentLikeState(child, commentId, liked)
-      ),
-    };
-  }
-  return comment;
+
+  const childComments = comment.childComments?.map((child) =>
+    updateCommentLikeState(child, commentId, liked)
+  );
+
+  return childComments ? { ...comment, childComments } : comment;
 }

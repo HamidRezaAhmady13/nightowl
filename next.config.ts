@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // reactStrictMode: false,
+
   outputFileTracingRoot: __dirname,
   experimental: {
     serverActions: {
@@ -14,6 +15,7 @@ const nextConfig: NextConfig = {
       "lh3.googleusercontent.com",
       "localhost",
       process.env.NEXT_PUBLIC_API_URL?.replace(/^https?:\/\//, "") || "",
+      // "/public",
     ],
     qualities: [20, 40, 75, 100],
     remotePatterns: [

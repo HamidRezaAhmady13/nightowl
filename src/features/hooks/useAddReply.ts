@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/features/lib/api";
-import { Comment } from "@/features/types";
+
+import api from "../lib/api";
+import { CommentWithLikeState } from "../types";
 
 export function useAddReply(postId: string) {
   const queryClient = useQueryClient();
@@ -18,18 +19,24 @@ export function useAddReply(postId: string) {
     onSuccess: (res, { parentId }) => {
       const createdReply = res.data;
 
-      queryClient.setQueryData<Comment[]>(["comments", postId], (old) => {
-        if (!old) return old;
-        return old.map((comment) =>
-          comment.id === parentId
-            ? {
-                ...comment,
-                replyCount: (comment.replyCount ?? 0) + 1,
-                childComments: [...(comment.childComments ?? []), createdReply],
-              }
-            : comment
-        );
-      });
+      queryClient.setQueryData<CommentWithLikeState[]>(
+        ["comments", postId],
+        (old) => {
+          if (!old) return old;
+          return old.map((comment) =>
+            comment.id === parentId
+              ? {
+                  ...comment,
+                  replyCount: (comment.replyCount ?? 0) + 1,
+                  childComments: [
+                    ...(comment.childComments ?? []),
+                    createdReply,
+                  ],
+                }
+              : comment
+          );
+        }
+      );
     },
   });
 }

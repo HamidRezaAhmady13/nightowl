@@ -1,8 +1,8 @@
 export default function FileLink({ url }: { url: string }) {
   return (
-    <div className="flex items-center gap-sm p-sm bg-gray-100 dark:bg-cobalt-700 rounded shadow-sm">
+    <div className="flex items-center gap-sm p-sm u-bg-soft u-text-cobalt rounded shadow-sm">
       <svg
-        className="w-lg h-lg text-cobalt-600 dark:text-amber-200"
+        className="w-lg h-lg u-text-cobalt "
         fill="none"
         stroke="currentColor"
         strokeWidth={2}
@@ -14,7 +14,7 @@ export default function FileLink({ url }: { url: string }) {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm text-cobalt-800 dark:text-amber-100 underline hover:text-cobalt-900 dark:hover:text-amber-300"
+        className="text-sm u-text-cobalt-sharp  underline    hover:u-text-cobalt-sharper transition-all duration-normal"
       >
         {url.split("/").pop()}
       </a>

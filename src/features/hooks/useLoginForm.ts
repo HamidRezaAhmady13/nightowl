@@ -1,7 +1,11 @@
-import { loginUser } from "@/features/lib/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import {
+  clearRefreshInterval,
+  startRefreshInterval,
+} from "../utils/startRefreshInterval";
+import { loginUser } from "../lib/auth";
 
 // hooks/useLoginForm.ts
 export function useLoginForm() {
@@ -33,6 +37,8 @@ export function useLoginForm() {
 
       router.push("/feed");
       router.refresh();
+      clearRefreshInterval();
+      startRefreshInterval();
     } catch (err: unknown) {
       const error = err as AuthError;
       setError(error.message);

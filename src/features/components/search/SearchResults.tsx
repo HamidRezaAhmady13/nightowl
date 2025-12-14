@@ -1,7 +1,7 @@
 import { useRouter } from "next/navigation";
 
 import Spinner from "../shared/Spinner";
-import SearchItem from "./SearchItem";
+import SearchItem from "./UserItem";
 
 export function SearchResults({
   users,

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getPageItems } from "@/app/utils/getPageItems";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import { searchUsers } from "../lib/serchUsers";
 import { User } from "../types";
+import { getPageItems } from "../utils/getPageItems";
 
 export function useSearch() {
   const searchParams = useSearchParams();

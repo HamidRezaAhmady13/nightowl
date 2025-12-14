@@ -1,5 +1,5 @@
-import { api } from "@/features/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../lib/api";
 
 export function useUpdateTheme() {
   const queryClient = useQueryClient();

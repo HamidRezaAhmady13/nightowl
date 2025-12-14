@@ -1,55 +1,81 @@
+import { Post } from "./post.types";
 import type { User } from "./user.types";
 
-type CommentBase = {
+/** Base fields shared by all comments */
+export type CommentBase = {
   id: string;
   text: string;
   author: User;
-  postId: string; // Changed from Pick<Post, "id">, assuming it's just the ID
+  postId: string;
   createdAt: string;
   likeCount: number;
   replyCount: number;
+  parentCommentId: string | null;
 };
 
-export type Comment = CommentBase & {
-  parentCommentId: string | null;
-  childComments: Comment[];
+/** Raw comment from API (may omit some client-only fields) */
+export type ApiComment = CommentBase & {
+  childComments?: ApiComment[];
   likedByUsers?: User[];
+  likedByCurrentUser?: boolean; // optional from API
 };
 
+/** Normalized comment used in client state/caches */
 export type CommentWithLikeState = CommentBase & {
-  parentCommentId: string | null;
-  childComments: CommentWithLikeState[]; // recursive
-  likedByCurrentUser: boolean;
+  likedByCurrentUser: boolean; // always present in client
+  childComments?: CommentWithLikeState[];
 };
 
+/** Variables for adding a comment */
+export type AddCommentVars = {
+  text: string;
+  postId: string;
+  parentCommentId?: string | null;
+  limit?: number;
+};
+
+/** Context for optimistic updates */
+export type ContextType = {
+  optimisticId?: string;
+  previousComments?: CommentsCache | null;
+  previousPost?: Post | null;
+};
+
+/** Props for rendering a comment item */
+export type CommentItemProps = CommentWithLikeState & {
+  likedByCurrentUser: boolean; // required in UI
+  isReply?: boolean;
+  parentIdForQuery?: string;
+  isExpanded?: boolean;
+  onToggleReplies?: () => void;
+  expandedMap?: Record<string, boolean>;
+  toggleExpanded?: (id: string) => void;
+  replyTo?: {
+    immediateId: string;
+    username: string;
+    parentIdToSend: string;
+  } | null;
+  setReplyTo?: (
+    v: { immediateId: string; username: string; parentIdToSend: string } | null
+  ) => void;
+};
+
+/** Props for comment form */
 export type CommentFormProps = {
   postId: string;
   parentCommentId?: string | null;
-  className?: string;
   initialText?: string;
   onSuccess?: () => void;
-  onPointerDown?: () => void;
+  className?: string;
   autoFocus?: boolean;
+  limit?: number;
 };
 
-export type AddCommentVars = {
-  text: string;
-  parentCommentId?: string | null;
-  postId: string | null;
-};
+/** Infinite query cache types */
+export type CommentsPage = { data: CommentWithLikeState[]; page: number };
+export type CommentsCache = { pages: CommentsPage[]; pageParams: unknown[] };
 
-// Option 1: Separate data and UI props
-export type CommentItemData = CommentWithLikeState;
-
-export type CommentItemUIProps = {
-  isReply?: boolean;
-  // onReply: (id: string, username: string, text: string) => void;
-  parentIdForQuery?: string;
-  postId: string; // Add postId here if needed in the UI component
-};
-
-export type CommentItemProps = CommentItemData & CommentItemUIProps;
-
+/** Variables for toggling like state */
 export type ToggleLikeVars = {
   commentId: string;
   liked: boolean;

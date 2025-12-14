@@ -5,7 +5,9 @@ import FormInput from "../forms/FormInput";
 type SearchInputProps = {
   value: string;
   className?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
 };
 
 export default function SearchInput({

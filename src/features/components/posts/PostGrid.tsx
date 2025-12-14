@@ -1,9 +1,9 @@
 import { useState } from "react";
 import PostTile from "./PostTile";
-import { useProfilePosts } from "@/features/hooks/useProfilePosts";
 import Spinner from "../shared/Spinner";
 import Button from "../shared/Button";
 import { useRouter } from "next/navigation";
+import { useProfilePosts } from "@/features/hooks/useProfilePosts";
 
 export default function PostsGrid({ username }: { username?: string }) {
   const [limit] = useState(6);

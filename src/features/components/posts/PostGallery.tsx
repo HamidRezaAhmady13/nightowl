@@ -1,4 +1,3 @@
-import { API_URL } from "@/features/lib/api";
 import {
   LANDSCAPE_RATIO,
   PORTRAIT_RATIO,
@@ -9,6 +8,7 @@ import {
 import Image from "next/image";
 import React, { useState } from "react";
 import MediaWrapper from "./MediaWrapper";
+import { API_URL } from "@/features/lib/api";
 
 type Props = { images: PostGalleryMedia[]; mode?: PostMode };
 

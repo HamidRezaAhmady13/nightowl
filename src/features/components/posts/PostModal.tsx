@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import ReactDOM from "react-dom";
-import { useClickOutside } from "@/features/hooks/useClickOutside";
+// import { useClickOutside } from "@/app/(protected)/hooks/useClickOutside";
 import { usePathname } from "next/navigation";
 import { useModalStack } from "@/features/hooks/useModalStack";
+import { useClickOutside } from "@/features/hooks/useClickOutside";
+// import { useModalStack } from "@/app/(protected)/hooks/useModalStack";
 
 type ModalProps = {
   children: React.ReactNode;

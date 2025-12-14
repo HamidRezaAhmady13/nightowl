@@ -1,10 +1,11 @@
 import { useRouter } from "next/navigation";
 import Button from "../shared/Button";
 import AvatarImage from "../shared/AvatarImage";
+// import { User } from "./header.types";
+import { User } from "@/features/types";
 import { API_URL } from "@/features/lib/api";
-import { User } from "./header.types";
 import { useCurrentUser } from "@/features/hooks/useCurrentUser";
-import OverlayRoutes from "../OverlayRoutes";
+// import OverlayRoutes from "../OverlayRoutes";
 
 export const UserHeader = ({
   avatarUrl,
@@ -12,7 +13,8 @@ export const UserHeader = ({
   bio,
   location,
   website,
-  following,
+  followingsCount,
+  followersCount,
 }: User) => {
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
@@ -46,10 +48,13 @@ export const UserHeader = ({
         </div>
       </div>
       <div className="u-flex-col-center gap-sm  space-y-sm">
-        <div>
-          {following && (
-            <p className="u-text-tertiary ">following : {following.length}</p>
-          )}
+        <div className="u-flex-center gap-x-3xl">
+          <div>
+            <p className="u-text-tertiary ">following : {followingsCount}</p>
+          </div>
+          <div>
+            <p className="u-text-tertiary ">followers : {followersCount}</p>
+          </div>
         </div>
         {bio && <p className="u-text-sm  u-text-primary">{bio}</p>}
 

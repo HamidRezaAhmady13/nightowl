@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { api } from "@/features/lib/api";
+import api from "../lib/api";
+// import { api } from "@/app/lib/api";
 
 type ResetHandlers = {
   resetContent?: () => void;

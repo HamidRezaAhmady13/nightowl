@@ -1,508 +1,155 @@
- for hover thing and image preview
-// "use client";
-
-// import { useQuery } from "@tanstack/react-query";
-// import { useParams } from "next/navigation";
-// import api from "@/lib/api";
-// import Image from "next/image";
-// import Spinner from "@/components/Spinner";
-// import VideoPlayer from "@/components/VideoPlayer";
-// import { Player } from "react-tuby";
-// import "react-tuby/css/main.css";
-// import { useRef } from "react";
-// import { HoverThumbnailPreview } from "@/components/HoverThumbnailPreview";
-
-// const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-// export default function PostPage() {
-//   type MediaItem = {
-//     id: string;
-//     type: "image" | "video" | "file";
-//     url: string;
-//     quality?: string;
-//   };
-//   type PostDto = {
-//     id: string;
-//     content?: string;
-//     createdAt: string;
-//     media?: MediaItem[];
-//   };
-
-//   const videoRef = useRef<HTMLVideoElement>(null);
-//   const { post } = useParams(); // dynamic route param
-
-//   const { data, isLoading } = useQuery({
-//     queryKey: ["post", post],
-//     queryFn: async () => {
-//       const res = await api.get(`/posts/${post}`);
-//       return res.data as PostDto;
-//     },
-//   });
-
-//   if (isLoading) return <Spinner />;
-//   if (!data) return <p className="text-center text-gray-500">Post not found</p>;
-
-//   const { content, createdAt, media = [] } = data;
-
-//   const videoVariants = media.filter(
-//     (m) => m.type === "video" && m.quality && m.quality !== "original"
-//   );
-
-//   const originalVideo = media.find(
-//     (m) => m.type === "video" && m.quality === "original"
-//   );
-
-//   const poster = media.find(
-//     (m) =>
-//       m.type === "image" &&
-//       m.url.includes("thumbnail") &&
-//       m.url.endsWith(".jpg")
-//   );
-
-//   const images = media.filter(
-//     (m) =>
-//       m.type === "image" &&
-//       !m.url.includes("thumbnail") &&
-//       !m.url.includes("sprite")
-//   );
-
-//   const files = media.filter((m) => m.type === "file");
-
-//   // Extract IDs and base name for thumbnail URL building
-//   let userId = "";
-//   let postId = "";
-//   let videoBaseName = "";
-//   if (originalVideo) {
-//     const parts = originalVideo.url.split("/");
-//     // /uploads/user-<uid>/post-<pid>/original/<filename>
-//     userId =
-//       parts.find((p) => p.startsWith("user-"))?.replace("user-", "") || "";
-//     postId =
-//       parts.find((p) => p.startsWith("post-"))?.replace("post-", "") || "";
-//     videoBaseName = parts.pop()?.split("-original-")[0] || "";
-//   }
-//   console.log(
-//     `${API_URL}/uploads/user-${userId}/post-${postId}/thumbnails/${videoBaseName}-thumbnail-${30}s.webp`
-//   );
-
-//   return (
-//     <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
-//       <h1 className="text-2xl font-bold">Post Details</h1>
-
-//       <div className="p-4 dark:bg-cobalt-800 rounded space-y-4">
-//         {content && (
-//           <p className="text-cobalt-900 dark:text-amber-100">{content}</p>
-//         )}
-
-//         <div className="relative group space-y-4">
-//           {/* Images */}
-//           {images.map((img) => (
-//             <Image
-//               key={img.id}
-//               src={`${API_URL}${img.url}`}
-//               alt={`Post image ${img.id}`}
-//               width={600}
-//               height={400}
-//               className="rounded"
-//             />
-//           ))}
-
-//           {/* Video */}
-//           {videoVariants.length > 0 ? (
-//             <>
-//               <Player
-//                 src={videoVariants.map((v) => ({
-//                   quality: v.quality ?? "auto",
-//                   url: `${API_URL}${v.url}`,
-//                 }))}
-//                 // playerRef={videoRef}
-//                 poster={poster ? `${API_URL}${poster.url}` : undefined}
-//                 primaryColor="#c084fc"
-//               />
-//               <HoverThumbnailPreview
-//                 videoRef={videoRef}
-//                 seekBarSelector=".tuby-seek-bar"
-//                 intervalSec={30}
-//                 width={160}
-//                 height={90}
-//                 thumbUrlFn={(sec) =>
-//                   `${API_URL}/uploads/user-${userId}/post-${postId}/thumbnails/${videoBaseName}-thumbnail-${sec}s.webp`
-//                 }
-//               />
-//             </>
-//           ) : originalVideo ? (
-//             <VideoPlayer
-//               ref={videoRef}
-//               src={`${API_URL}${originalVideo.url}`}
-//               poster={poster ? `${API_URL}${poster.url}` : undefined}
-//             />
-//           ) : null}
-
-//           {/* Files */}
-//           {files.map((file) => (
-//             <FileLink key={file.id} url={`${API_URL}${file.url}`} />
-//           ))}
-
-//           <p className="text-sm text-gray-500">
-//             Posted on {new Date(createdAt).toLocaleString()}
-//           </p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// function FileLink({ url }: { url: string }) {
-//   return (
-//     <div className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-cobalt-700 rounded shadow-sm">
-//       <svg
-//         className="w-6 h-6 text-cobalt-600 dark:text-amber-200"
-//         fill="none"
-//         stroke="currentColor"
-//         strokeWidth={2}
-//         viewBox="0 0 24 24"
-//       >
-//         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-//       </svg>
-//       <a
-//         href={url}
-//         target="_blank"
-//         rel="noopener noreferrer"
-//         className="text-sm text-cobalt-800 dark:text-amber-100 underline hover:text-cobalt-900 dark:hover:text-amber-300"
-//       >
-//         {url.split("/").pop()}
-//       </a>
-//     </div>
-//   );
-// }
-
-
-Perfect — here’s your React Query + TypeScript “Frustration Survival Kit” Cheat Sheet 🛠️ Keep this handy so next time you don’t lose two days to overload errors and mystery UI bugs.
-
-1. First Question: Do I Even Need onSuccess?
-Yes → I have a side effect that should run only when the query succeeds (e.g., seed another cache, log analytics, show a toast).
-
-No → I can just watch data in a useEffect and run my logic there. (This sidesteps overload typing issues entirely.)
-
-2. Safest useQuery Patterns in v5
-A. Object Form (most reliable)
-ts
-useQuery({
-  queryKey: ["key"] as const,
-  queryFn,
-  onSuccess, // if needed
-  initialData,
-  enabled
-})
-B. Explicitly Typed Options
-ts
-const options: UseQueryOptions<DataType, Error, DataType, ["key"]> = {
-  queryKey: ["key"],
-  queryFn,
-  onSuccess: (data) => { /* ... */ }
-};
-useQuery(options);
-C. Escape Hatch
-If TS still fights you → remove onSuccess and use:
-
-ts
-useEffect(() => {
-  if (data) { /* ... */ }
-}, [data]);
-3. Cache Seeding Pattern
-For instant detail-page loads from feed data:
-
-Feed hook:
-
-ts
-useEffect(() => {
-  if (data) {
-    data.forEach((item) => {
-      queryClient.setQueryData(["detail", item.id], item);
-    });
-  }
-}, [data, queryClient]);
-Detail hook:
-
-ts
-initialData: () => {
-  const list = queryClient.getQueryData(["list"]);
-  return list?.find((i) => i.id === id);
-}
-4. Common Overload Traps
-Passing (key, { queryFn, onSuccess }) → TS thinks you’re using the wrong overload.
-
-Forgetting as const on queryKey → TS widens it to string[] and breaks inference.
-
-Mixing initialData and onSuccess without explicit generics → TS picks the “DefinedInitialData” overload that doesn’t have onSuccess.
-
-5. Quick Debug Checklist
-Imports — missing CSS or helper imports can cause “UI bugs” that look like logic errors.
-
-Cache Keys — must match exactly (["post", id] vs ["posts"]).
-
-Network Tab — confirm data is actually loading.
-
-DevTools — check if the cache contains what you expect.
-
-6. Mindset
-When TS errors feel nonsensical:
-
-It’s often not your logic — it’s the type system picking the wrong overload.
-
-Either force the type or bypass the overload with plain React patterns.
-
-Don’t be afraid to move logic into useEffect if it unblocks you.
-
-
-<div class="part auxiliarybar basepanel left pane-composite-part" id="workbench.parts.auxiliarybar"  
-
-
-/* (['"`])(?=[\s\S]*\bflex\b)(?=[\s\S]*\bflex-1\b)(?=[\s\S]*\bgap-4\b)(?=[\s\S]*\bmb-4\b)[\s\S]*?\1 */
+-----git-------
+RAVENTHRONE > git add .
+RAVENTHRONE > git commit -m "name of commit" 
+RAVENTHRONE > git push -u origin HEAD
+-----git-------
  
 
-1. Text-role hierarchy
-Think of your copy as layered information. Assign each role a meaningful name so you stay consistent across components:
-
-Primary text • Body copy, paragraphs, key labels • Must meet 4.5:1 contrast against its background
-
-Secondary text • Captions, hints, metadata (timestamps, form labels) • Ideally 3:1 (if large enough) or stay close to 4.5:1 for small sizes
-
-Tertiary text • Disabled states, placeholders, muted notes • Can drop down to 2.5:1 for very small hints—but use sparingly
-3. Jonas’s contrast rules refresher
-From the course you saw 18 months ago (shout-out to Jonas), remember:
-
-Small text (<18 px normal, <14 px bold) demands ≥4.5:1 contrast.
-
-Large text (≥18 px normal, ≥14 px bold) can relax to ≥3:1.
-
-Decorative or disabled text can dip to 2.5:1—but only if it doesn’t carry essential meaning.
-
-Always test against the actual background color—not white! (Your gradient stops matter.)
-
-for primary contrast 12-7
-
-Extra-small (<12 px) 10:1+
-Small/Body (12–16 px normal, 10–14 px bold) 7:1+
-Medium/Secondary (16–18 px normal, 14–18 px bold) 4.5:1–7:1
-Large/Display (≥18 px normal, ≥14 px bold) 3:1+
-
-fulieUploadInput focus enter doesnt work!
 
 
+  
+--------checklist of notifications-------
+Auth at connect (JWT verify + socket.userId; join user:{id})
+
+Notification model (id, userId, type, payload, createdAt, read=false, delivered=false) persisted in DB
+
+Emission flow: server creates DB row → emits notification to user:{id} → await client ACK → mark delivered
+
+Offline handling: if no ACK or no sockets, keep undelivered; on reconnect, fetch missed notifications by createdAt or undelivered flag
+
+Fanout & scale: use Redis adapter for multi‑instance broadcasts; route to user:{id} room
+
+Idempotency & dedupe: include notificationId; clients ignore duplicates
+
+Rate limit & batching: throttle high‑frequency events; batch multiple notifications into one payload when needed
+
+Security: validate events server‑side; never trust client payload for delivery decisions
+
+UX: small payloads for toasts; separate inbox fetch for full content and pagination
+
+Observability: metrics for emitted, delivered, acked, and read counts; logs for rejected auths
+
+
+--brief:
+1.auth and JWT 2.defining entity 3.persisting to DB then send to user 4.handling offline and unAcknowledged 5.managing adapters 6.give every notification an id for checking its seen or not 7. rate limiting the notification between time interval and batch them to notify as one socket emit 8.security stuff, shortLived jwt and longLived JWT 9. short content for toast and full detail in dedicated page 10.track whole amount of emitted not... delivered and acked ones and failed emits, something like notificationCount on DB
+--------checklist of notifications-------
+
+
+
+
+=========
+
+
+Backend finish: wire Bull queue + processor, register Notification repository in NotificationModule, ensure SocketGateway is injectable and joins user:{id} on auth.
+
+Idempotency & safety: ensure sourceId/idempotency keys, DLQ for failed jobs, exponential backoff config.
+
+APIs and guards: expose GET /notifications, PATCH /:id/read, PATCH /mark-all-read with JwtAuthGuard and RequestWithUser typing.
+
+Instrumentation: track queue length, job failures, delivered vs read metrics, and alert on spikes.
+
+Frontend realtime: ensure SocketProvider joins server room after auth, show toast on incoming notification, insert into react-query infinite cache, dedupe by id, bump unread badge.
+
+UX: toast limits/grouping, click -> navigate + markRead (optimistic), notification center infinite scroll with mark-read actions.
+
+Testing: end-to-end flow (create -> persisted -> queued -> delivered -> client receives -> markRead -> DB updated).
+
+
+
+-------
+
+
+Bull queue → a background job list. Instead of doing heavy work inside your controller, you drop a “job” into the queue. A worker later picks it up and runs it. Example: “Send notification to 10,000 followers” goes into the queue, worker handles it slowly without blocking your request.
+
+DLQ (Dead Letter Queue) → a special “trash bin” for jobs that keep failing. If a job retries 5 times and still errors, it’s moved to DLQ so you can inspect/debug later, instead of retrying forever.
+
+Idempotency key / sourceId → a unique identifier for the event (like like_123_user_5). If the same job is retried, the service checks this key and avoids creating duplicate notifications.
+
+Exponential backoff → when a job fails, don’t retry immediately. Wait 1s, then 2s, then 4s, etc. This prevents hammering the system when something is broken.
+
+APIs + guards → simple REST endpoints (GET /notifications, PATCH /:id/read) protected by JwtAuthGuard so only logged-in users can access their own notifications.
+
+Instrumentation → just “watch the health.” Count how many jobs are in the queue, how many failed, how many notifications delivered vs read. If numbers spike, you know something’s wrong.
+
+Frontend realtime → your React app connects to the socket gateway. When a notification arrives, show a toast, add it to the local cache, and bump the unread badge.
+
+UX rules → don’t spam toasts. Group similar events (“3 people liked your post”). Clicking a toast should navigate to the post and mark the notification read.
+
+Testing flow → simulate: user likes → backend saves notification → queue delivers → socket emits → frontend shows toast → user clicks → backend marks read.
+
+👉 Think of it like a post office:
+
+Controller = person writing the letter.
+
+Queue = mail truck carrying letters.
+
+Worker = postman delivering letters.
+
+DLQ = undeliverable letters bin.
+
+SocketGateway = your mailbox.
+
+Frontend = you opening the mailbox and reading letters.
+======
 
  
 
 
-        RAVENTHRONE > git add .
-RAVENTHRONE > git commit -m "comments"
-[main ce4571b] comments
- 2 files changed, 9 insertions(+), 12 deletions(-)
-RAVENTHRONE > git push -u origin HEAD
-Enumerating objects: 15, done.
-
-measureSeekRect
-
-
-bind
-unbind
-measure
-
-
-1.Measure once on enter
-
-In useSeekHoverListeners onEnter: call utilsMeasure(seekEl, cachedRectRef) and log cachedRectRef.current.top..
-
-2.Stop measuring on move
-
-In onMove/pointerMoveHandler: only call utilsMeasure if cachedRectRef.current is null; otherwise call onPointerX?.(e.clientX).
-
-3.Expose pointer callback
-
-Change useSeekHoverListeners signature to accept onPointerX and call it with clientX when overSeek.
-
-4.Provide updatePointerX before wiring
-
-Define updatePointerX (or get it from lifecycle) before calling useSeekHoverListeners so it’s in scope.
-
-5.Read cached rect in show-effect only
-
-In useCanvasPortalLifecycle show-effect: use seek.lastRect() only; do not call getBoundingClientRect there.
-
-6.Test logs and behavior
-
-Hover: one ENTER log; Move: many MOVE clientX logs; Canvas transform: only X changes, Y stays fixed.
-
-/////////////////
-1.so finding seek bar, measuring its boundingRect and listening to mouseX position! so far i understood the task!
-checking lastRect is not null if its null bidn and unbind and measure or actually reFinding seekbar!
-
-
-2.so it just checks cachedRectRef whether exists or not! if not finds it and if yes uses current value all for the purpose of y! x is recieved nprevious step!? thats all about it
-
-3.so in this step we only use postion mouse x which was retrieved in step 1 to pass it to a fn which moves canvas on screenand update the value which is passed to fn for updating UI
-
-4.so actually in this step we define a fn which recieves x and returns translate x
-
-5.so the simple translation of what u said is that we need to pass cachedRef to appropriate fn not measuring seekBar boungRect at all! thats all of it!
+ bull queue DLQ
 
 
 
+ ----------------tonite ntf socket-----------
+1. When the user logs in
 
-//////summarey
-find seekbar->getBouningRect->addEventListener for measuring x of mouse->then check lastrect which is seekbar el ref exist or not if yes or not handle situations with bind and unbind! in this step i guess unbind is for unhover! an lil nuance here! next step checking cachedRef exists->if yes compute y value!x is handled previous step! next step by recieving x posion of mouse from step 1 we transform its x to proper position for upading ui implementin a dedicated fn for this purpose! and lastly in our effect for every mouse move we check do we use cachedref for seekbar or not if not we return before whole process done and main purpose is not getBoundingRect directly just recieve it from fn as an arg!
+Right after you know who the user is (useCurrentUser finished), call your backend API to get their latest notifications.
 
+Save those notifications in React Query so your app can show them immediately.
 
+2.Stay connected for live updates
 
-        RAVENTHRONE > git add .
-RAVENTHRONE > git commit -m "comments"
-[main ce4571b] comments
- 2 files changed, 9 insertions(+), 12 deletions(-)
-RAVENTHRONE > git push -u origin HEAD
-Enumerating objects: 15, done.
+Open a socket connection with the user’s token.
 
+Listen for two kinds of events:
 
+"notification" → means a brand‑new notification arrived (like “Alice liked your post”).
 
+"notifications:unreadCount" → means the unread badge number changed.
 
-///////
-"use client";
-import React, { useState } from "react";
-import ReactDOM from "react-dom";
-import { useSeekHoverListeners } from "./useSeekHoverListeners";
-import { useCanvasPortalLifecycle } from "./useCanvasPortalLifecycle";
+When you hear "notification", add it to your local list.
 
-export default function CanvasPortal({
-  canvasRef,
-  width = 160,
-  height = 90,
-  style,
-  postId,
-  onRemount,
-  lastPointerRef,
-  showCanvasPortal,
-}: {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  width?: number;
-  height?: number;
-  style?: React.CSSProperties;
-  postId?: string;
-  onRemount?: () => void;
-  lastPointerRef?: React.RefObject<PointerEvent | null>;
-  showCanvasPortal: boolean;
-}) {
-  // const updatePointerX = React.useCallback((clientX: number) => {
-  //   // forward to lifecycle hook later via seek or state
-  //   // temporarily just log to verify wiring
-  //   console.log("MOVE clientX", clientX);
-  // }, []);
-  const [mountEl, setMountEl] = useState<HTMLElement | null>(() =>
-    typeof document !== "undefined" ? document.body : null
-  );
-  // const lifecycle = useCanvasPortalLifecycle({
-  //   canvasRef,
-  //   mountEl,
-  //   postId /* …other props except seek… */,
-  // });
-  //  const { isMounted, isVisible, transform } = useCanvasPortalLifecycle({
-  const lifecycle = useCanvasPortalLifecycle({
-    canvasRef,
-    mountEl,
-    postId,
-    // seek,
-    lastPointerRef,
-    showCanvasPortal,
-    width,
-    height,
-    onRemount,
-  });
-  const { isMounted, isVisible, transform } = lifecycle;
-  const seek = useSeekHoverListeners(
-    `#video-container-${postId} .tuby-seek-bar`,
-    lifecycle.updatePointerX
-  );
-  // const seek = useSeekHoverListeners(
-  //   `#video-container-${postId} .tuby-seek-bar`,
-  //   updatePointerX
-  // );
+When you hear "notifications:unreadCount", update the badge count.
 
-  // console.log(transform, "Portal");
+3.Keep the badge number correct
 
-  const canvasStyle: React.CSSProperties = {
-    position: "fixed",
-    left: 0,
-    top: 0,
-    pointerEvents: "none",
-    zIndex: 99999,
-    willChange: "transform, opacity",
-    borderRadius: 4,
-    transition: "opacity 120ms ease, transform 120ms ease",
-    background: "rgba(255,0,0,0.8)", // debug - remove later
-    ...style,
-  };
+At login, you can either fetch the unread count from the API or just calculate it from the list you fetched.
 
-  if (!mountEl || !isMounted) return null;
+After that, don’t poll — just trust the socket events to keep the badge in sync.
 
-  return ReactDOM.createPortal(
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      aria-hidden
-      style={{
-        ...canvasStyle,
-        opacity: isVisible ? 1 : 0,
-        transform: lifecycle.transform,
-      }}
-    />,
-    mountEl
-  );
-}
+4.When the user marks one notification as read
+
+Immediately update your local cache so the UI shows it as read (optimistic update).
+
+Send a PATCH request to the backend.
+
+The backend will emit a new unread count, so your badge updates automatically.
+
+5.When the user marks all as read
+
+Optimistically mark them all as read in your local cache.
+
+Call the backend endpoint.
+
+The backend emits unread count = 0, so your badge resets.
 
 
-////////
+----brief----
+1.by login fetching ntf! and set a queryKey accordingly!
+2. wire up socket to connection event!
+3.unread ctf number by that api endpoint!
+4. when a ntf is seen send an api req to markread!
+5. send an api req to markReadAll when all is send
+----brief----
+ ----------------tonite ntf socket-----------
 
-.player-themed-wrapper {
-  --player-accent: #ffa000;
-}
-html.dark .player-themed-wrapper {
-  --player-accent: #4f46e5;
-}
-.player-themed-wrapper .tuby-seek-bar .tuby-progress {
-  background: var(--player-accent) !important;
-}
-
-.player-themed-wrapper {
-  --player-accent: #ffa000;
-}
-html.dark .player-themed-wrapper {
-  --player-accent: #4f46e5;
-}
-.player-themed-wrapper .tuby-seek-bar .tuby-progress {
-  background: var(--player-accent) !important;
-}
-
-video {
-  width: 100%;
-  height: auto;
-}
-.video-player {
-  --player-accent: #ffa000;
-}
-
-html.dark .video-player {
-  --player-accent: #4f46e5;
-}
-
-
-///
-.tuby-seek-bar {
-  background: #e6e6e6;
-  height: 6px;
-}
-.tuby-seek-bar .tuby-progress {
-  background: var(--tuby-primary-color) !important;
-}
-.tuby-seek-bar .tuby-buffer {
-  background: rgba(0, 0, 0, 0.12);
-  height: 6px;
-}
+           

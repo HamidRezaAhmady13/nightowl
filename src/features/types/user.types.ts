@@ -9,6 +9,8 @@ export type User = {
   location?: string;
   website?: string;
   following?: UserPreview[];
+  followersCount?: number;
+  followingsCount?: number;
 };
 
 type SignupForm = Omit<User, "id" | "avatarUrl"> & {

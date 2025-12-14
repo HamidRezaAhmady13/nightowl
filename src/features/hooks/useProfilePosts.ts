@@ -1,8 +1,5 @@
-// "use client";
-// import { useState, useEffect, useRef, useCallback } from "react";
-import { api } from "@/features/lib/api"; // your axios instance
-
 import { useCallback, useEffect, useRef, useState } from "react";
+import api from "../lib/api";
 
 type PostPreview = {
   id: string;

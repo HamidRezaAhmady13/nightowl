@@ -22,9 +22,6 @@ export default function MediaWrapper({
     );
   }
 
-  //
-
-  // components/MediaWrapper.tsx — modal branch
   return (
     <div
       className="w-full max-w-3xl mx-auto"

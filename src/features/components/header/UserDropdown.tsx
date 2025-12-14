@@ -3,49 +3,21 @@
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 
-import { useLogout } from "@/features/hooks/useLogout";
-import { useUpdateTheme } from "@/features/hooks/useUpdateTheme";
-import { api } from "@/features/lib/api";
 import Button from "../shared/Button";
 import { updatePlayerAccent } from "@/features/utils/updateAccent";
 import { observePlayersAndApplyAccent } from "@/features/utils/observePlayers";
+import { useLogout } from "@/features/hooks/useLogout";
+import { useUpdateTheme } from "@/features/hooks/useUpdateTheme";
+import { useCurrentUser } from "@/features/hooks/useCurrentUser";
 
 function UserDropdown() {
   const router = useRouter();
   const { handleLogout } = useLogout();
   const [isDark, setIsDark] = useState(false);
   const { mutate: updateTheme } = useUpdateTheme();
-  const { data: currentUser } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: () => api.get("/users/me").then((res) => res.data),
-  });
-
-  // run observer once on mount and clean up
-  // useEffect(() => {
-  //   const stop = observePlayersAndApplyAccent(); // returns cleanup
-  //   return () => stop();
-  // }, []);
-
-  // // initialize isDark and ensure root var synced
-  // useEffect(() => {
-  //   const theme =
-  //     document.cookie
-  //       .split("; ")
-  //       .find((c) => c.startsWith("theme="))
-  //       ?.split("=")[1] ||
-  //     (document.documentElement.classList.contains("dark") ? "dark" : "light");
-  //   const dark = theme === "dark";
-  //   setIsDark(dark);
-
-  //   const color = dark ? "#4f46e5" : "#ffa000";
-  //   document.documentElement.classList.toggle("dark", dark);
-  //   document.documentElement.style.setProperty("--player-accent", color);
-  //   document.documentElement.style.setProperty("--tuby-primary-color", color);
-  //   // ensure any already-mounted players repaint
-  //   updatePlayerAccent(color);
-  // }, []);
+  const { data: currentUser } = useCurrentUser();
+  if (!currentUser) return null;
 
   useEffect(() => {
     const stop = observePlayersAndApplyAccent();
@@ -93,6 +65,13 @@ function UserDropdown() {
     document.documentElement.style.setProperty("--tuby-primary-color", color);
     updatePlayerAccent(color);
 
+    // notify listeners (PlayerThemed now listens for this simple event)
+    try {
+      window.dispatchEvent(new Event("theme:changed"));
+    } catch (e) {
+      /* ignore in non-window envs */
+    }
+
     // persist
     document.cookie = `theme=${newTheme}; path=/; SameSite=lax`;
     updateTheme(newTheme); // fire-and-forget; add error handling if you want
@@ -124,7 +103,7 @@ function UserDropdown() {
         className="w-full"
         size={"lg"}
         height={"md"}
-      />
+      />{" "}
       <Button
         label="Share post"
         onClick={() => router.push(`/post`)}

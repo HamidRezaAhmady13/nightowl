@@ -1,75 +1,27 @@
-// import { formatCount } from "@/features/utils/formatCount";
-// import { Post, PostActionsProps } from "@/features/types";
-// import Button from "../shared/Button";
-// import { useToggleLike } from "@/features/hooks/useToggleLike";
-// import CommentForm from "../comment/CommentForm";
-// import { useState } from "react";
-// import CommentModal from "../comment/CommentsModal";
-// // import { API_URL } from "@/features/lib/api";
-
-// export function PostActions({ post, currentUserId }: PostActionsProps) {
-//   const isLiked = (post.likedBy ?? []).some((u) => u.id === currentUserId);
-//   const toggleLikeMutation = useToggleLike(post.id, currentUserId);
-//   const [activePost, setActivePost] = useState<string | null>(null);
-//   console.log(post);
-
-//   return (
-//     <>
-//       <div className="u-flex-center gap-md  ">
-//         <Button
-//           className="u-bg-transparent hover:u-bg-transparent   u-focus-not-visible   w-3xl"
-//           onClick={() => {
-//             toggleLikeMutation.mutate();
-//           }}
-//         >
-//           <span>{isLiked ? "❤️" : "🤍"}</span>
-//           <span className="u-text-tertiary u-text-sm inline-block w-xl text-right tabular-nums">
-//             {formatCount(post.likesCount)}
-//           </span>
-//         </Button>
-//         <Button
-//           onClick={() => setActivePost(post.id)}
-//           className="u-bg-transparent hover:u-bg-transparent  u-focus-not-visible   w-3xl"
-//         >
-//           <span>💬</span>
-//           <span className="u-text-tertiary u-text-sm  inline-block w-xl text-right tabular-nums">
-//             {formatCount(post.commentsCount)}
-//           </span>
-//         </Button>
-//         {activePost && (
-//           <CommentModal postId={post.id} onClose={() => setActivePost("")} />
-//         )}
-//         <CommentForm postId={post.id} />
-//       </div>
-//       <div>
-//         <span className="u-text-tertiary u-text-xs ">
-//           Posted on {new Date(post.createdAt).toLocaleString()}
-//         </span>
-//       </div>
-//     </>
-//   );
-// }
 "use client";
 
 import { formatCount } from "@/features/utils/formatCount";
-import { Post } from "@/features/types";
-import { useToggleLike } from "@/features/hooks/useToggleLike";
+import { Post, UserPreview } from "@/features/types";
 import Button from "../shared/Button";
 import CommentForm from "../comment/CommentForm";
+import { useToggleLike } from "@/features/hooks/useToggleLike";
 
 export type PostActionsProps = {
   post: Post;
-  currentUserId: string;
+  currentUser: UserPreview;
   onCommentClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  limit: number;
 };
 
 export default function PostActions({
   post,
-  currentUserId,
+  currentUser,
   onCommentClick,
+  limit,
 }: PostActionsProps) {
-  const isLiked = post.likedBy?.some((u) => u.id === currentUserId);
-  const toggleLike = useToggleLike(post.id, currentUserId);
+  const isLiked = post.likedBy?.some((u) => u.id === currentUser.id);
+  // const toggleLike = useToggleCommentLike(post.id);
+  const toggleLike = useToggleLike(post.id, currentUser);
 
   return (
     <>
@@ -81,6 +33,7 @@ export default function PostActions({
           onClick={(e) => {
             e.stopPropagation();
             toggleLike.mutate();
+            // toggleLike.mutate({ postId: post.id, liked: isLiked ?? false });
           }}
         >
           <span>{isLiked ? "❤️" : "🤍"}</span>

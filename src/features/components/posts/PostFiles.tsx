@@ -1,10 +1,7 @@
 // components/posts/PostFiles.tsx
 import { API_URL } from "@/features/lib/api";
 import FileLink from "./FileLink";
-
-interface PostFilesProps {
-  files?: { id: string; url: string }[];
-}
+import { PostFilesProps } from "@/features/types";
 
 export default function PostFiles({ files = [] }: PostFilesProps) {
   if (!files.length) return null;

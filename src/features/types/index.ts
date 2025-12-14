@@ -4,4 +4,3 @@ export * from "./media.types";
 export * from "./enums";
 export * from "./comment.types";
 export * from "./form.types";
-// export * from "../components/shared/button.types";

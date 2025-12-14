@@ -3,15 +3,16 @@
 import { Post, PostMode } from "@/features/types";
 import { PostHeader } from "./PostHeader";
 import { PostContent } from "./PostContent";
-import { useCurrentUser } from "@/features/hooks/useCurrentUser";
 import PostMedia from "./PostMedia";
 import PostActions from "./PostActions";
+import { useCurrentUser } from "@/features/hooks/useCurrentUser";
 
 type PostCardProps = {
   post: Post;
   onNavigate?: () => void;
   onCommentClick?: () => void;
   mode?: PostMode;
+  limit: number;
 };
 
 export default function PostShell({
@@ -19,6 +20,7 @@ export default function PostShell({
   onNavigate,
   onCommentClick,
   mode = "feed",
+  limit,
 }: PostCardProps) {
   const { data: currentUser } = useCurrentUser();
   if (!currentUser) return null;
@@ -76,8 +78,9 @@ export default function PostShell({
 
       <div style={{ flex: "0 0 auto" }}>
         <PostActions
+          limit={limit}
           post={post}
-          currentUserId={currentUser.id}
+          currentUser={currentUser}
           onCommentClick={(e) => {
             e.stopPropagation();
             handleComment();

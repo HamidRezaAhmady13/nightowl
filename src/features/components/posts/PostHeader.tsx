@@ -1,8 +1,8 @@
 import { Post } from "@/features/types";
 import AvatarImage from "../shared/AvatarImage";
-import { API_URL } from "@/features/lib/api";
 import { useRouter } from "next/navigation";
 import { GeneralLink } from "../shared/GeneralLink";
+import { API_URL } from "@/features/lib/api";
 
 export function PostHeader({ post }: { post: Post }) {
   const router = useRouter();

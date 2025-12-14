@@ -103,11 +103,20 @@
   .u-text-error {
     @apply text-red-600 dark:text-red-400 text-sm;
   }
+  .u-text-error-lg {
+    @apply text-red-600 dark:text-red-400 text-2xl;
+  }
   .u-text-cobalt {
     @apply text-cobalt-600 dark:text-cobalt-300;
   }
   .u-text-cobalt-soft {
     @apply text-cobalt-500 dark:text-cobalt-400;
+  }
+  .u-text-cobalt-sharp {
+    @apply text-cobalt-400 dark:text-cobalt-200;
+  }
+  .u-text-cobalt-sharper {
+    @apply text-cobalt-400 dark:text-cobalt-100;
   }
   /* texts */
 

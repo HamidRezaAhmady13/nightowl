@@ -1,9 +1,12 @@
 import { CommentItemProps } from "@/features/types";
 import AvatarImage from "../shared/AvatarImage";
-import { useToggleCommentLike } from "@/features/hooks/useToggleCommentLike";
-import { useComments } from "@/features/hooks/useComments";
+// import { useToggleCommentLike } from "@/app/(protected)/hooks/useToggleCommentLike";
+// import { useCommentsInfinite } from "@/features/hooks/useCommentsInfinite"; // new hook
 import { GeneralLink } from "../shared/GeneralLink";
 import CommentForm from "./CommentForm";
+import { useToggleCommentLike } from "@/features/hooks/useToggleCommentLike";
+import { useRepliesInfinite } from "@/features/hooks/useCommentsInfinite";
+// import { useRepliesInfinite } from "@/app/(protected)/hooks/useCommentsInfinite";
 
 function CommentItem({
   id,
@@ -38,14 +41,23 @@ function CommentItem({
 }) {
   const toggleLike = useToggleCommentLike(postId);
 
-  const { data: replies, isLoading: repliesLoading } = useComments({
+  // ✅ use infinite query for replies
+  const {
+    data,
+    isLoading: repliesLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useRepliesInfinite({
     commentId: id,
     enabled: Boolean(isExpanded),
   });
 
+  const replies = data?.pages.flatMap((p) => p.data) ?? [];
+
   return (
     <div
-      className={`u-flex-start-start flex-col   gap-xs ${
+      className={`u-flex-start-start flex-col gap-xs ${
         isReply ? "ml-[1px]" : ""
       }`}
     >
@@ -58,16 +70,16 @@ function CommentItem({
           alt={author.username}
           size={30}
         />
-
         {author.username}
       </GeneralLink>
-      {/*  */}
+
       <div className="ml-sm">
         <p className="text-sm u-text-primary mt-xs">{text}</p>
         <span className="u-text-tertiary u-text-xs">
           {new Date(createdAt).toLocaleDateString()}
         </span>
-        <div className="flex gap-md mt-sm   u-text-tertiary">
+
+        <div className="flex gap-md mt-sm u-text-tertiary">
           <button
             className="u-focus-not-visible"
             onClick={(e) => {
@@ -87,12 +99,10 @@ function CommentItem({
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              const parentForReply = id;
-              console.log("reply-click", id, author.username, parentIdForQuery);
               setReplyTo?.({
                 immediateId: id,
                 username: author.username,
-                parentIdToSend: parentForReply,
+                parentIdToSend: id,
               });
             }}
           >
@@ -104,74 +114,66 @@ function CommentItem({
               onClick={() => onToggleReplies?.()}
               className="u-text-cobalt-soft u-focus-not-visible"
             >
-              View {replyCount}
-              {replyCount === 1 ? " reply" : " replies"}
+              View {replyCount} {replyCount === 1 ? "reply" : "replies"}
             </button>
           )}
         </div>
+
         {isExpanded && (
           <div className="mt-md ml-lg border-l u-text-tertiary pl-md">
             {repliesLoading ? (
               <p className="text-xs u-text-tertiary">Loading replies...</p>
             ) : (
-              replies?.map((reply) => (
-                <CommentItem
-                  key={reply.id}
-                  {...reply}
-                  postId={postId}
-                  isReply
-                  parentIdForQuery={id}
-                  isExpanded={Boolean(expandedMap?.[reply.id])}
-                  onToggleReplies={() => toggleExpanded?.(reply.id)}
-                  expandedMap={expandedMap}
-                  toggleExpanded={toggleExpanded}
-                  replyTo={replyTo}
-                  setReplyTo={setReplyTo}
-                />
-              ))
+              <>
+                {replies.map((reply) => (
+                  <CommentItem
+                    key={reply.id}
+                    {...reply}
+                    postId={postId}
+                    isReply
+                    parentIdForQuery={id}
+                    isExpanded={Boolean(expandedMap?.[reply.id])}
+                    onToggleReplies={() => toggleExpanded?.(reply.id)}
+                    expandedMap={expandedMap}
+                    toggleExpanded={toggleExpanded}
+                    replyTo={replyTo}
+                    setReplyTo={setReplyTo}
+                  />
+                ))}
+                {hasNextPage && (
+                  <button
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    className="mt-sm u-btn"
+                  >
+                    {isFetchingNextPage
+                      ? "Loading more..."
+                      : "Load more replies"}
+                  </button>
+                )}
+              </>
             )}
           </div>
         )}
 
-        {/* render inline reply form here when replyTo points to this comment */}
         {replyTo?.immediateId === id && (
           <div className="mt-sm">
             <CommentForm
+              autoFocus={true}
               postId={postId}
               parentCommentId={replyTo.parentIdToSend ?? replyTo.immediateId}
               onSuccess={() => {
-                // setReplyTo?.(null);
-                //
-
                 setReplyTo?.(null);
-
-                // ensure parent comment's replies are visible and refetched
                 const parentId =
                   replyTo?.parentIdToSend ?? replyTo?.immediateId;
                 if (parentId && !expandedMap?.[parentId]) {
-                  // expand the parent so useComments({ commentId: parentId }) runs
                   toggleExpanded?.(parentId);
-                } else {
-                  // already expanded: force a refetch to pick up server reply
-                  // assumes toggleExpanded is not provided for this component; otherwise call both
-                  // you can also invalidate replies explicitly:
-                  // queryClient.invalidateQueries({ queryKey: ["replies", parentId] });
                 }
-
-                // small delay for scroll/visuals
-                requestAnimationFrame(() => {});
-
-                //
-
-                requestAnimationFrame(() => {
-                  /* parent modal scroll/refresh handled elsewhere */
-                });
               }}
               className="w-full"
             />
             <div className="u-text-secondary u-text-xs mt-xs flex">
-              Replying to
-              <strong className="pl-sm">{replyTo.username}</strong>
+              Replying to <strong className="pl-sm">{replyTo.username}</strong>
               <button
                 className="hover:scale-105 ml-auto u-text-error pr-md"
                 onClick={() => setReplyTo?.(null)}
@@ -181,7 +183,6 @@ function CommentItem({
             </div>
           </div>
         )}
-        {/*  */}
       </div>
     </div>
   );

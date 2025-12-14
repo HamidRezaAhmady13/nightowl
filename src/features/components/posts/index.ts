@@ -5,5 +5,3 @@ export * from "./PostContent";
 export * from "./PostFiles";
 export * from "./PostHeader";
 export * from "./PostMedia";
-export * from "./SinglePost";
-export * from "./SinglePostView";

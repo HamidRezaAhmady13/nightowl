@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Player, type PlayerProps } from "react-tuby";
 
 type ThemedColor = string | undefined;
@@ -47,9 +47,9 @@ export default function PlayerThemed({
   fallback = "#ffa000",
   ...playerProps
 }: PlayerThemedProps) {
-  const wrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  const primaryRaw = React.useMemo(
+  const primaryRaw = useMemo(
     () => parseThemeColor(themed, isDark, fallback),
     [themed, isDark, fallback]
   );
@@ -57,7 +57,7 @@ export default function PlayerThemed({
   // resolvedPrimary: if themed is a CSS var (eg `var(--player-accent)`),
   // read the computed value and keep it in state so we can update when
   // the root inline style changes (theme toggle updates the inline style).
-  const [resolvedPrimary, setResolvedPrimary] = React.useState(() => {
+  const [resolvedPrimary, setResolvedPrimary] = useState(() => {
     if (/^var\(.+\)$/.test(primaryRaw)) {
       if (typeof window === "undefined") return fallback;
       const varName = primaryRaw
@@ -72,45 +72,31 @@ export default function PlayerThemed({
     return primaryRaw;
   });
 
-  // Observe inline style changes on documentElement so we re-read the CSS var
-  // whenever `document.documentElement.style.setProperty('--player-accent', ...)` runs.
-  useEffect(() => {
+  // Simple, explicit: listen for a theme event and re-read the CSS var.
+  // This is much easier to read than a MutationObserver.
+  React.useEffect(() => {
     if (!/^var\(.+\)$/.test(primaryRaw)) return;
     if (typeof window === "undefined") return;
 
-    const varName = primaryRaw
-      .replace(/^var\(/, "")
-      .replace(/\)$/, "")
-      .trim();
+    const varName = primaryRaw.replace(/^var\(|\)$/g, "").trim();
     const read = () =>
       (
         getComputedStyle(document.documentElement).getPropertyValue(varName) ||
         ""
       ).trim() || fallback;
 
-    // set initial
+    // initial
     setResolvedPrimary(read());
 
-    // monitor inline style attribute changes on <html>
-    const mo = new MutationObserver(() => {
-      const v = read();
-      setResolvedPrimary((prev) => (prev !== v ? v : prev));
-    });
-    mo.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["style"],
-    });
+    const onThemeChanged = () => setResolvedPrimary(read());
 
-    // also listen to storage in case theme persistence uses localStorage elsewhere
-    const onStorage = () => {
-      const v = read();
-      setResolvedPrimary((prev) => (prev !== v ? v : prev));
-    };
-    window.addEventListener("storage", onStorage);
+    window.addEventListener("theme:changed", onThemeChanged as EventListener);
 
     return () => {
-      mo.disconnect();
-      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(
+        "theme:changed",
+        onThemeChanged as EventListener
+      );
     };
   }, [primaryRaw, fallback]);
 

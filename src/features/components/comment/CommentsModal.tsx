@@ -1,20 +1,48 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import CommentForm from "./CommentForm"; // your existing component
+import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
-import { useComments } from "@/features/hooks/useComments";
+
+import Button from "../shared/Button";
+import { useCommentsInfinite } from "@/features/hooks/useCommentsInfinite";
 import { useModalStack } from "@/features/hooks/useModalStack";
 
 export default function CommentsModal({
   postId,
   onClose,
+  commentId,
 }: {
   postId: string;
   onClose: () => void;
+  commentId?: string;
 }) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
-  const { data: comments, isLoading } = useComments({ postId });
+  // const { data: comments, isLoading } = useCommentsInfinite({ postId });
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useCommentsInfinite({ postId });
+
+  const comments = data?.pages.flatMap((p) => p.data) ?? [];
+
+  useEffect(() => {
+    if (!commentId) return;
+    if (!comments?.length) return;
+
+    // ensure types match
+    const normalizedId = String(commentId);
+
+    // wait for paint to complete
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(`comment-${normalizedId}`);
+      console.log("target:", `comment-${normalizedId}`, el);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlight");
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [commentId, comments?.length]);
 
   const scrollToTop = () =>
     listRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -60,7 +88,7 @@ export default function CommentsModal({
 
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-[110] u-flex-center   " // ensure higher z than parent modal
+      className="fixed inset-0 z-[9999999999] u-flex-center   " // ensure higher z than parent modal
       aria-modal="true"
       role="presentation"
     >
@@ -75,7 +103,7 @@ export default function CommentsModal({
         ref={dialogRef}
         role="dialog"
         aria-label="Comments"
-        className="relative   u-bg-deep  z-10 rounded-lg w-full h-full sm:w-[60vw] sm:h-auto sm:max-w-xl sm:max-h-[80vh] flex flex-col"
+        className="relative   u-bg-deep  z-[9999999999] rounded-lg w-full h-full sm:w-[60vw] sm:h-auto sm:max-w-xl sm:max-h-[80vh] flex flex-col"
         onPointerDown={(e) => e.stopPropagation()}
       >
         {/* */}
@@ -91,8 +119,7 @@ export default function CommentsModal({
           ) : comments?.length ? (
             <ul className="space-y-md">
               {comments.map((c) => (
-                <li key={c.id}>
-                  {/*  */}
+                <li key={c.id} id={`comment-${String(c.id)}`}>
                   <CommentItem
                     {...c}
                     postId={postId}
@@ -107,19 +134,28 @@ export default function CommentsModal({
                   />
                 </li>
               ))}
+              {hasNextPage && (
+                <div className="block w-full u-flex-center">
+                  <Button
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    size={"sm"}
+                    className="h-lg rounded-2xl"
+                  >
+                    {isFetchingNextPage ? "Loading more..." : "Load more"}
+                  </Button>
+                </div>
+              )}
             </ul>
           ) : (
             <p className="u-text-tertiary">No comments yet</p>
           )}
         </div>
-
         <div className="border-t u-border p-md w-full">
           <CommentForm
             postId={postId}
             autoFocus={true}
-            onSuccess={() => {
-              /* optional */
-            }}
+            onSuccess={() => {}}
             className="w-full"
           />
         </div>

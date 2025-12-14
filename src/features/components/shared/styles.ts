@@ -18,6 +18,12 @@ export const buttonStyles = cva(
       intent: {
         primary: "u-text-btn u-bg-btn",
         ghost: "u-text-tertiary u-bg-ghost",
+        invisible: [
+          "bg-transparent text-inherit", // base look
+          "hover:bg-transparent active:bg-transparent", // disable hover/active
+          "focus:outline-none focus:ring-0 ring-0", // remove focus ring
+          "shadow-none", // remove any shadow
+        ].join(" "),
       },
       flex: {
         start: "justify-start",

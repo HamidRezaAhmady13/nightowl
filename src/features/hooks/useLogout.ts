@@ -1,12 +1,14 @@
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { logoutUser } from "@/features/lib/auth";
+import { logoutUser } from "../lib/auth";
+// import { logoutUser } from "@/app/lib/auth";
 
 export function useLogout() {
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
+      localStorage.removeItem("token");
       await toast.promise(logoutUser(), {
         loading: "Logging out...",
         success: "Logged out",

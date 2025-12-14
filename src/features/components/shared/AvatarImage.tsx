@@ -1,3 +1,4 @@
+// import { API_URL } from "@/app/lib/api";
 import { API_URL } from "@/features/lib/api";
 import Image from "next/image";
 
@@ -28,7 +29,7 @@ function AvatarImage({
     <div className={` u-flex-center `}>
       <Image
         src={resolvedSrc}
-        alt={alt}
+        alt={alt ?? "profile image"}
         width={size}
         height={size}
         className="  object-cover rounded-full "

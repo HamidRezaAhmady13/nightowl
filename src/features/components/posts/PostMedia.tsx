@@ -2,13 +2,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-// import PlayerThemed from "@/features/components/PlayerThemed";
-import { API_URL } from "@/features/lib/api";
-import {
-  getVideoVariants,
-  getPosterImage,
-  getPostImages,
-} from "@/app/utils/extractPostMedia";
+
 import PostGallery from "./PostGallery";
 import type { Post, PostMode } from "@/features/types";
 
@@ -19,6 +13,14 @@ import {
   SQUARE_RATIO,
 } from "@/features/types";
 import PlayerThemed from "./PlayerThemed";
+import {
+  getPosterImage,
+  getPostFiles,
+  getPostImages,
+  getVideoVariants,
+} from "@/features/utils/extractPostMedia";
+import { API_URL } from "@/features/lib/api";
+import PostFiles from "./PostFiles";
 
 export default function PostMedia({
   post,
@@ -33,6 +35,7 @@ export default function PostMedia({
   const videoVariants = getVideoVariants(post);
   const poster = getPosterImage(post);
   const images = getPostImages(post);
+  const files = getPostFiles(post);
   const [isDark, setIsDark] = useState<boolean>(false);
 
   useEffect(() => {
@@ -68,7 +71,6 @@ export default function PostMedia({
   return (
     <div className="space-y-md" id={`post-media-${post.id}`}>
       {images && <PostGallery mode={mode} images={images} />}
-
       {videoVariants.length > 0 && (
         <div
           className="w-full max-w-3xl mx-auto"
@@ -108,6 +110,12 @@ export default function PostMedia({
             </div>
           </MediaWrapper>
         </div>
+      )}
+      {/* {files.length > 0 && <p>asd</p>} */}
+      {files.length > 0 && (
+        <>
+          <PostFiles files={post.media} />
+        </>
       )}
     </div>
   );

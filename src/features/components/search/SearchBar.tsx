@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { useClickOutside } from "@/features/hooks/useClickOutside";
 import { SearchResults } from "./SearchResults";
-import { useUserSearch } from "@/features/hooks/useUserSearch";
 import SearchInput from "./SearchInput";
+import { useClickOutside } from "@/features/hooks/useClickOutside";
+import { useUserSearch } from "@/features/hooks/useUserSearch";
 
 function SearchBar({ className }: { className?: string }) {
   const router = useRouter();
