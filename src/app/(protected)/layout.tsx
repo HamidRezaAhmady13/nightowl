@@ -1,3 +1,5 @@
+import Header from "@/features/components/header/Header";
+
 export default async function ProtectedLayout({
   children,
 }: {
@@ -6,6 +8,7 @@ export default async function ProtectedLayout({
   return (
     <div className="auth-wrapper">
       {/* Maybe a centered card or background */}
+      <Header />
       {children}
     </div>
   );
