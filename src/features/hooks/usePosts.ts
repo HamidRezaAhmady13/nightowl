@@ -16,9 +16,17 @@ export function usePostQuery(opts?: { id?: string }) {
     enabled: !!postId,
 
     // 1) Try to hydrate from the feed cache instantly
+    // initialData: () => {
+    //   const feed = queryClient.getQueryData<Post[]>(["posts"]);
+    //   return feed?.find((p) => p.id === postId);
+    // },
+
     initialData: () => {
-      const feed = queryClient.getQueryData<Post[]>(["posts"]);
-      return feed?.find((p) => p.id === postId);
+      const feed = queryClient.getQueryData<{ items: Post[]; total: number }>([
+        "posts",
+        { page: 1, limit: 2 }, // match the same key shape you used in usePostsQuery
+      ]);
+      return feed?.items.find((p) => p.id === postId);
     },
 
     // 2) If it wasn’t in cache, or if you reload directly, fetch from the server

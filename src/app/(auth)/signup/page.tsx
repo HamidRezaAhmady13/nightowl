@@ -86,7 +86,7 @@ export default function SignupPage() {
 
         <FormInput
           name="website"
-          type="url"
+          type="text"
           value={form.website || ""}
           onChange={handleChange}
           placeholder="Website (optional)"
