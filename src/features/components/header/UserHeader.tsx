@@ -1,11 +1,9 @@
 import { useRouter } from "next/navigation";
 import Button from "../shared/Button";
 import AvatarImage from "../shared/AvatarImage";
-// import { User } from "./header.types";
 import { User } from "@/features/types";
 import { API_URL } from "@/features/lib/api";
-import { useCurrentUser } from "@/features/hooks/useCurrentUser";
-// import OverlayRoutes from "../OverlayRoutes";
+import { useCurrentUser } from "../AuthContext";
 
 export const UserHeader = ({
   avatarUrl,
@@ -17,7 +15,7 @@ export const UserHeader = ({
   followersCount,
 }: User) => {
   const router = useRouter();
-  const { data: currentUser } = useCurrentUser();
+  const { user: currentUser } = useCurrentUser();
   return (
     <div className="u-flex-col-center gap-xl w-full ">
       {/* Avatar */}

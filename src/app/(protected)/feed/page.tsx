@@ -21,10 +21,10 @@ export default function FeedPage() {
   if (isLoading) return <Spinner />;
 
   return (
-    <div>
+    <div className="mt-2xl">
       {posts.map((post) => (
         <PostShell
-          limit={limit}
+          // limit={limit}
           key={post.id}
           post={post}
           onCommentClick={() => setActivePostId(post.id)}
@@ -45,7 +45,6 @@ export default function FeedPage() {
             onClick={async () => {
               if (!hasNextPage || isFetchingNextPage) return;
               const res = await fetchNextPage();
-              // update URL after fetch completes to avoid race/navigation scroll
               const nextPage = page + 1;
               const params = new URLSearchParams(window.location.search);
               params.set("page", String(nextPage));

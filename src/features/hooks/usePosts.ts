@@ -1,35 +1,28 @@
 import { useParams } from "next/navigation";
-// import { api } from "@/app/lib/api";
+
 import { Post } from "@/features/types";
 import { toSingleString } from "../lib/toSingleString";
-
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../lib/api";
+import { queryKeys } from "../utils/queryKeys";
+
 export function usePostQuery(opts?: { id?: string }) {
   const params = useParams();
   const paramId = toSingleString(params?.post);
-  const postId = opts?.id ?? paramId;
+  const postId = paramId ?? opts?.id;
   const queryClient = useQueryClient();
 
   return useQuery<Post, Error>({
-    queryKey: ["post", postId],
+    queryKey: queryKeys.posts.detail(postId),
     enabled: !!postId,
 
-    // 1) Try to hydrate from the feed cache instantly
-    // initialData: () => {
-    //   const feed = queryClient.getQueryData<Post[]>(["posts"]);
-    //   return feed?.find((p) => p.id === postId);
-    // },
-
     initialData: () => {
-      const feed = queryClient.getQueryData<{ items: Post[]; total: number }>([
-        "posts",
-        { page: 1, limit: 2 }, // match the same key shape you used in usePostsQuery
-      ]);
+      const feed = queryClient.getQueryData<{ items: Post[]; total: number }>(
+        queryKeys.posts.list(1, 2)
+      );
       return feed?.items.find((p) => p.id === postId);
     },
 
-    // 2) If it wasn’t in cache, or if you reload directly, fetch from the server
     queryFn: async () => {
       const res = await api.get(`/posts/${postId}`);
 
@@ -40,7 +33,7 @@ export function usePostQuery(opts?: { id?: string }) {
 
 export function usePostsQuery(page: number = 1, limit: number = 2) {
   return useQuery<{ items: Post[]; total: number }, Error>({
-    queryKey: ["posts", { page, limit }],
+    queryKey: queryKeys.posts.list(page, limit),
     queryFn: async () =>
       (await api.get(`/posts/feed?limit=${limit}&page=${page}`)).data as {
         items: Post[];

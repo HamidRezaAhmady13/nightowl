@@ -3,7 +3,7 @@ import FormInput from "../forms/FormInput";
 import Button from "../shared/Button";
 import { useAddComment } from "@/features/hooks/useAddComment";
 import { CommentFormProps } from "@/features/types";
-import { useCurrentUser } from "@/features/hooks/useCurrentUser";
+import { useCurrentUser } from "../AuthContext";
 
 const limit = process.env.PAGE_LIMIT_ENV || 10;
 
@@ -16,7 +16,7 @@ export default function CommentForm({
   autoFocus,
   limit,
 }: CommentFormProps) {
-  const { data: currentUser } = useCurrentUser();
+  const { user: currentUser } = useCurrentUser();
   const [commentText, setCommentText] = useState(initialText || "");
   const addCommentMutation = useAddComment(currentUser, limit);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -31,7 +31,6 @@ export default function CommentForm({
       { text: commentText, parentCommentId, postId },
       {
         onSuccess: () => {
-          // ✅ only UI concerns here
           setCommentText("");
           submittingRef.current = false;
           onSuccess?.();

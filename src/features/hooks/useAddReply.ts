@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import api from "../lib/api";
 import { CommentWithLikeState } from "../types";
+import { queryKeys } from "../utils/queryKeys";
 
 export function useAddReply(postId: string) {
   const queryClient = useQueryClient();
@@ -20,7 +21,7 @@ export function useAddReply(postId: string) {
       const createdReply = res.data;
 
       queryClient.setQueryData<CommentWithLikeState[]>(
-        ["comments", postId],
+        queryKeys.comments.list(postId),
         (old) => {
           if (!old) return old;
           return old.map((comment) =>

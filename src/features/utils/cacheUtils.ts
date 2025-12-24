@@ -1,44 +1,21 @@
 import type { Post, CommentsCache, PostsInfiniteData } from "@/features/types";
 //
 import { QueryClient } from "@tanstack/react-query";
+import { queryKeys } from "./queryKeys";
 
 const limit = process.env.PAGE_LIMIT_ENV || 10;
 
-// export function bumpCommentsCount(
-//   queryClient: QueryClient,
-//   postId: string,
-//   limit?: number
-// ) {
-//   // update single post
-//   queryClient.setQueryData<Post | undefined>(["post", postId], (old) =>
-//     old ? { ...old, commentsCount: old.commentsCount + 1 } : old
-//   );
-
-//   // update feed list (use same key as usePostsInfinite)
-//   queryClient.setQueryData<any>(["posts", limit], (old: any) => {
-//     console.log(limit);
-//     if (!old) return old;
-//     return {
-//       ...old,
-//       pages: old.pages.map((page: any) => ({
-//         ...page,
-//         items: page.items.map((p: Post) =>
-//           p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p
-//         ),
-//       })),
-//     };
-//   });
-// }
 export function bumpCommentsCount(
   queryClient: QueryClient,
   postId: string,
-  limit?: number
+  limit: number
 ) {
-  queryClient.setQueryData<Post | undefined>(["post", postId], (old) =>
-    old ? { ...old, commentsCount: old.commentsCount + 1 } : old
+  queryClient.setQueryData<Post | undefined>(
+    queryKeys.posts.detail(postId),
+    (old) => (old ? { ...old, commentsCount: old.commentsCount + 1 } : old)
   );
 
-  queryClient.setQueryData<any>(["posts", { limit }], (old: any) => {
+  queryClient.setQueryData<any>(queryKeys.posts.infinite(limit), (old: any) => {
     if (!old) return old;
     return {
       ...old,

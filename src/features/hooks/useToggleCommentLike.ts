@@ -5,6 +5,7 @@ import {
 } from "@/features/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../lib/api";
+import { queryKeys } from "../utils/queryKeys";
 
 export function useToggleCommentLike(postId: string) {
   const queryClient = useQueryClient();
@@ -18,38 +19,43 @@ export function useToggleCommentLike(postId: string) {
 
     onMutate: async ({ commentId, liked, parentCommentId }) => {
       await Promise.all([
-        queryClient.cancelQueries({ queryKey: ["comments", postId] }),
+        queryClient.cancelQueries({
+          queryKey: queryKeys.comments.list(postId),
+        }),
         parentCommentId
           ? queryClient.cancelQueries({
-              queryKey: ["replies", parentCommentId],
+              queryKey: queryKeys.replies.list(parentCommentId),
             })
           : Promise.resolve(),
       ]);
 
-      const prevComments = queryClient.getQueryData<CommentWithLikeState[]>([
-        "comments",
-        postId,
-      ]);
+      const prevComments = queryClient.getQueryData<CommentWithLikeState[]>(
+        queryKeys.comments.list(postId)
+      );
       const prevReplies = parentCommentId
-        ? queryClient.getQueryData<CommentWithLikeState[]>([
-            "replies",
-            parentCommentId,
-          ])
+        ? queryClient.getQueryData<CommentWithLikeState[]>(
+            queryKeys.replies.list(parentCommentId)
+          )
         : undefined;
 
-      queryClient.setQueryData<CommentsCache>(["comments", postId], (old) => {
-        if (!old) return old;
-        const pages = old.pages.map((p) => ({
-          ...p,
-          data: p.data.map((c) => updateCommentLikeState(c, commentId, liked)),
-        }));
-        return { ...old, pages };
-      });
+      queryClient.setQueryData<CommentsCache>(
+        queryKeys.comments.list(postId),
+        (old) => {
+          if (!old) return old;
+          const pages = old.pages.map((p) => ({
+            ...p,
+            data: p.data.map((c) =>
+              updateCommentLikeState(c, commentId, liked)
+            ),
+          }));
+          return { ...old, pages };
+        }
+      );
 
       // Update the replies list if applicable
       if (parentCommentId) {
         queryClient.setQueryData<CommentsCache>(
-          ["replies", parentCommentId],
+          queryKeys.replies.list(parentCommentId),
           (old) => {
             if (!old) return old;
             const pages = old.pages.map((p) => ({
@@ -68,11 +74,14 @@ export function useToggleCommentLike(postId: string) {
 
     onError: (_err, _vars, ctx) => {
       if (ctx?.prevComments) {
-        queryClient.setQueryData(["comments", postId], ctx.prevComments);
+        queryClient.setQueryData(
+          queryKeys.comments.list(postId),
+          ctx.prevComments
+        );
       }
       if (ctx?.parentCommentId && ctx?.prevReplies) {
         queryClient.setQueryData(
-          ["replies", ctx.parentCommentId],
+          queryKeys.replies.list(ctx.parentCommentId),
           ctx.prevReplies
         );
       }
@@ -80,10 +89,12 @@ export function useToggleCommentLike(postId: string) {
 
     // safety net: ensure server truth wins after optimistic update
     onSettled: (_data, _err, vars) => {
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.comments.list(postId),
+      });
       if (vars.parentCommentId) {
         queryClient.invalidateQueries({
-          queryKey: ["replies", vars.parentCommentId],
+          queryKey: queryKeys.replies.list(vars.parentCommentId),
         });
       }
     },

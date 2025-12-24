@@ -30,12 +30,6 @@ export function validateSignupForm(form: SignupFormData) {
     ? errors.avatarUrl
     : "";
 
-  console.log("##############");
-  console.log(message);
-  console.log(form);
-
-  console.log("##############");
-
   return {
     isValid: !Object.values(errors).some(Boolean),
     errors,

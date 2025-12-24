@@ -116,8 +116,6 @@ export function SpritePreview({
           display: visible ? "block" : "none",
           pointerEvents: "none",
           zIndex: 9999,
-          //   backgroundColor: "#000000cc",
-
           transform: "translateX(-50%)",
         }}
       />

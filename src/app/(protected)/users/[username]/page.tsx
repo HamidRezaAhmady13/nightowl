@@ -6,15 +6,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Button from "@/features/components/shared/Button";
 import { User, UserPreview } from "@/features/types"; // <-- ensure UserPreview exists
 import { UserHeader } from "@/features/components/header";
-// import { useCurrentUser } from "@/app/(protected)/hooks/useCurrentUser";
 import Spinner from "@/features/components/shared/Spinner";
 import PostsGrid from "@/features/components/posts/PostGrid";
 import OverlayRoutes from "@/features/components/OverlayRoutes";
-import { useCurrentUser } from "@/features/hooks/useCurrentUser";
 import { getUserHeaderProps } from "@/features/utils/profile";
 import api from "@/features/lib/api";
+import { useCurrentUser } from "@/features/components/AuthContext";
+import { queryKeys } from "@/features/utils/queryKeys";
+import getToken from "@/features/lib/getMeAndUsers";
+// import { token } from "@/features/lib/getMe";
 
-type UserPreviewNoId = Omit<UserPreview, "id">;
 function decodeSafe(u?: string) {
   if (!u) return u;
   try {
@@ -35,64 +36,70 @@ export default function UserProfilePage() {
   if (!decodedUsername) return <p>User not found.</p>;
 
   const queryClient = useQueryClient();
-  const { data: currentUser } = useCurrentUser();
+  const { user: currentUser } = useCurrentUser();
 
-  // Use decoded username as the cache key; encode only for network paths
   const { data: profileUser, isLoading } = useQuery({
-    queryKey: ["user", decodedUsername],
+    queryKey: queryKeys.user.byUsername(decodedUsername),
     queryFn: async () => {
       const res = await api.get(
         `/users/${encodeURIComponent(decodedUsername)}`
       );
-
-      console.log(res);
       return res.data;
     },
 
     enabled: !!decodedUsername,
   });
 
-  // console.log(profileUser);
-
-  // `following` is an array of previews; compare preview.username
   const isFollowing = Array.isArray(currentUser?.following)
     ? (currentUser.following as UserPreview[]).some(
         (u) => u.username === decodedUsername
       )
     : false;
 
-  // client: ensure server returns { currentUser: User } after follow/unfollow
   const followMutation = useMutation({
     mutationFn: async ({ username }: { username: string }) => {
       const res = await api.post(
         `/users/${encodeURIComponent(username)}/follow`
       );
-
       return res;
     },
     onMutate: async (vars) => {
-      await queryClient.cancelQueries({ queryKey: ["currentUser"] });
-      const prev = queryClient.getQueryData<User | undefined>(["currentUser"]);
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.user.current(getToken() ?? ""),
+      });
+      const prev = queryClient.getQueryData<User | undefined>(
+        queryKeys.user.current(getToken() ?? "")
+      );
       // optimistic add
-      queryClient.setQueryData<User | undefined>(["currentUser"], (old) =>
-        old
-          ? {
-              ...old,
-              following: [
-                ...(old.following ?? []),
-                { username: vars.username, id: `temp-${Date.now()}` },
-              ],
-            }
-          : old
+      queryClient.setQueryData<User | undefined>(
+        queryKeys.user.current(getToken() ?? ""),
+        (old) =>
+          old
+            ? {
+                ...old,
+                following: [
+                  ...(old.following ?? []),
+                  { username: vars.username, id: `temp-${Date.now()}` },
+                ],
+              }
+            : old
       );
       return { prev };
     },
     onError: (_err, _vars, ctx: any) => {
-      if (ctx?.prev) queryClient.setQueryData(["currentUser"], ctx.prev);
+      if (ctx?.prev)
+        queryClient.setQueryData(
+          queryKeys.user.current(getToken() ?? ""),
+          ctx.prev
+        );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user", decodedUsername] });
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user.byUsername(decodedUsername),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user.current(getToken() ?? ""),
+      });
     },
   });
 
@@ -105,27 +112,41 @@ export default function UserProfilePage() {
       return res;
     },
     onMutate: async (vars) => {
-      await queryClient.cancelQueries({ queryKey: ["currentUser"] });
-      const prev = queryClient.getQueryData<User | undefined>(["currentUser"]);
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.user.current(getToken() ?? ""),
+      });
+      const prev = queryClient.getQueryData<User | undefined>(
+        queryKeys.user.current(getToken() ?? "")
+      );
       // optimistic remove
-      queryClient.setQueryData<User | undefined>(["currentUser"], (old) =>
-        old
-          ? {
-              ...old,
-              following: (old.following ?? []).filter(
-                (u: UserPreview) => u.username !== vars.username
-              ),
-            }
-          : old
+      queryClient.setQueryData<User | undefined>(
+        queryKeys.user.current(getToken() ?? ""),
+        (old) =>
+          old
+            ? {
+                ...old,
+                following: (old.following ?? []).filter(
+                  (u: UserPreview) => u.username !== vars.username
+                ),
+              }
+            : old
       );
       return { prev };
     },
     onError: (_err, _vars, ctx: any) => {
-      if (ctx?.prev) queryClient.setQueryData(["currentUser"], ctx.prev);
+      if (ctx?.prev)
+        queryClient.setQueryData(
+          queryKeys.user.current(getToken() ?? ""),
+          ctx.prev
+        );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user", decodedUsername] });
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user.byUsername(decodedUsername),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user.current(getToken() ?? ""),
+      });
     },
   });
 

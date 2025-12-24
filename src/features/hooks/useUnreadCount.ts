@@ -1,24 +1,20 @@
-// useUnreadCount.ts
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "../lib/api"; // axios instance
+import { queryKeys } from "../utils/queryKeys";
+import api from "../lib/api";
 
 export function useUnreadCount(userId?: string) {
-  const queryClient = useQueryClient();
-  return useQuery<number>({
-    queryKey: ["notifications", userId ?? null, "unreadCount"],
+  return useQuery({
+    queryKey: queryKeys.notifications.unread(userId),
     queryFn: async () => {
+      // Fetch from API - simple and direct
       const res = await api.get<{ unread: number }>(
         "/notifications/unread-count"
       );
+
       return res.data.unread;
     },
     enabled: !!userId,
-    initialData: () => {
-      const feed = queryClient.getQueryData<{ items: any[] }>([
-        "notifications",
-        userId ?? null,
-      ]);
-      return feed ? feed.items.filter((n) => !n.readAt).length : 0;
-    },
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
   });
 }

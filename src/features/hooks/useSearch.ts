@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-import { searchUsers } from "../lib/serchUsers";
+import { searchUsers } from "../lib/searchUsers";
 import { User } from "../types";
 import { getPageItems } from "../utils/getPageItems";
 

@@ -1,12 +1,9 @@
 import { CommentItemProps } from "@/features/types";
 import AvatarImage from "../shared/AvatarImage";
-// import { useToggleCommentLike } from "@/app/(protected)/hooks/useToggleCommentLike";
-// import { useCommentsInfinite } from "@/features/hooks/useCommentsInfinite"; // new hook
 import { GeneralLink } from "../shared/GeneralLink";
 import CommentForm from "./CommentForm";
 import { useToggleCommentLike } from "@/features/hooks/useToggleCommentLike";
 import { useRepliesInfinite } from "@/features/hooks/useCommentsInfinite";
-// import { useRepliesInfinite } from "@/app/(protected)/hooks/useCommentsInfinite";
 
 function CommentItem({
   id,
@@ -41,7 +38,6 @@ function CommentItem({
 }) {
   const toggleLike = useToggleCommentLike(postId);
 
-  // ✅ use infinite query for replies
   const {
     data,
     isLoading: repliesLoading,

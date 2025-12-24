@@ -54,7 +54,6 @@ export default function PostsGrid({ username }: { username?: string }) {
           size={"xs"}
           height={"sm"}
           onClick={() => {
-            // reset list locally and refetch first page
             reset();
             reload();
           }}

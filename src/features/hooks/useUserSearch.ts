@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { searchUsers } from "../lib/serchUsers";
+import { searchUsers } from "../lib/searchUsers";
 
 export function useUserSearch({
   query,

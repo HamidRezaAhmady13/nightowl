@@ -12,6 +12,7 @@ import { PageMain } from "@/features/components/layout/PageMain";
 import SafeFullscreenShim from "@/features/components/SafeFullscreenShim";
 import { AuthProvider } from "@/features/components/AuthContext";
 import ReactQueryProvider from "@/features/components/ReactQueryProvider";
+import ThemeWrapper from "@/features/components/ThemeWrapper";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -36,7 +37,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // cookies() runs on the server, so this is safe
   const cookieStore = await cookies();
   const theme = cookieStore.get("theme")?.value || "light";
 
@@ -66,13 +66,15 @@ export default async function RootLayout({
             }}
           />
           <SafeFullscreenShim />
-          <AppShell>
-            <PageRow>
-              <PageMain>
-                <AuthProvider>{children}</AuthProvider>
-              </PageMain>
-            </PageRow>
-          </AppShell>
+          <ThemeWrapper>
+            <AppShell>
+              <PageRow>
+                <PageMain>
+                  <AuthProvider>{children}</AuthProvider>
+                </PageMain>
+              </PageRow>
+            </AppShell>
+          </ThemeWrapper>
           <ReactQueryDevtools initialIsOpen={false} />
         </ReactQueryProvider>
       </body>

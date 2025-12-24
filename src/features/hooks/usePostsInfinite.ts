@@ -1,8 +1,8 @@
 "use client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { FeedPage } from "@/features/types";
+import { queryKeys } from "../utils/queryKeys";
 import api from "../lib/api";
-import { postsKey } from "../lib/postKey";
 
 async function fetchPosts(limit: number, page: number): Promise<FeedPage> {
   const res = await api.get(`/posts/feed?limit=${limit}&page=${page}`);
@@ -15,8 +15,7 @@ function getNextPageParam(last: FeedPage, pages: FeedPage[]) {
 }
 export function usePostsInfinite(limit: number) {
   return useInfiniteQuery({
-    queryKey: postsKey,
-    // queryKey: postsKey(limit),
+    queryKey: queryKeys.posts.infinite(limit),
     queryFn: ({ pageParam = 1 }) => fetchPosts(limit, pageParam),
     getNextPageParam,
     initialPageParam: 1,

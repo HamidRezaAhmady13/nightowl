@@ -8,7 +8,7 @@ import PostModal from "./PostModal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import CommentsModal from "../comment/CommentsModal";
-import { usePostQuery, usePostsQuery } from "@/features/hooks/usePosts";
+import { usePostQuery } from "@/features/hooks/usePosts";
 
 export default function PostDetailModal({
   postId,

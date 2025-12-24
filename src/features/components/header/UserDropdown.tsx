@@ -9,14 +9,14 @@ import { updatePlayerAccent } from "@/features/utils/updateAccent";
 import { observePlayersAndApplyAccent } from "@/features/utils/observePlayers";
 import { useLogout } from "@/features/hooks/useLogout";
 import { useUpdateTheme } from "@/features/hooks/useUpdateTheme";
-import { useCurrentUser } from "@/features/hooks/useCurrentUser";
+import { useCurrentUser } from "../AuthContext";
 
 function UserDropdown() {
   const router = useRouter();
   const { handleLogout } = useLogout();
   const [isDark, setIsDark] = useState(false);
   const { mutate: updateTheme } = useUpdateTheme();
-  const { data: currentUser } = useCurrentUser();
+  const { user: currentUser } = useCurrentUser();
   if (!currentUser) return null;
 
   useEffect(() => {

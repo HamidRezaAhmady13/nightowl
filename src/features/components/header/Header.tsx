@@ -1,24 +1,15 @@
 "use client";
 
 import Button from "../shared/Button";
-// import { useCurrentUser } from "@/app/(protected)/hooks/useCurrentUser";
 import UserDropdown from "./UserDropdown";
 import SearchBar from "../search/SearchBar";
 import AvatarImage from "../shared/AvatarImage";
 
-//
 import NotificationButton from "../notification/NotificationButton";
-// import { useUnreadCount } from "@/app/(protected)/hooks/useUnreadCount";
-import { useRouter } from "next/navigation";
-import { useCurrentUser } from "@/features/hooks/useCurrentUser";
-import { useUnreadCount } from "@/features/hooks/useUnreadCount";
-
-//
+import { useCurrentUser } from "../AuthContext";
 
 export default function Header() {
-  const { data: currentUser } = useCurrentUser();
-  const router = useRouter();
-  const { data: unread = 0 } = useUnreadCount(currentUser?.id);
+  const { user: currentUser } = useCurrentUser();
 
   if (!currentUser) return null;
 
@@ -41,7 +32,6 @@ export default function Header() {
               </div>
               <span className="u-text-md">{currentUser.username} </span>
             </Button>
-
             <UserDropdown />
           </>
         )}
@@ -49,8 +39,7 @@ export default function Header() {
 
       {currentUser && (
         <div className="ml-auto flex items-center gap-lg">
-          <NotificationButton unread={unread > 0} href="/notifications" />
-
+          <NotificationButton href="/notifications" />
           <SearchBar className="h-2xl  " />
         </div>
       )}

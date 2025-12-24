@@ -18,7 +18,6 @@ export default function CommentsModal({
   commentId?: string;
 }) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
-  // const { data: comments, isLoading } = useCommentsInfinite({ postId });
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useCommentsInfinite({ postId });
 

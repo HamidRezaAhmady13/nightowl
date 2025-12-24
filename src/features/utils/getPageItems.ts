@@ -1,8 +1,3 @@
-/**
- * Returns an array of page labels:
- * - Numbers: real page links
- * - "…"    : ellipsis where pages are skipped
- */
 export function getPageItems(
   page: number,
   totalPages: number,

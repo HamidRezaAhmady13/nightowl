@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import api from "../lib/api";
-// import { api } from "@/app/lib/api";
 
 type ResetHandlers = {
   resetContent?: () => void;
@@ -37,7 +36,7 @@ export function useCreatePostMutation(handlers: ResetHandlers = {}) {
   };
 
   return {
-    ...mutation, // isLoading/isError/isSuccess/mutate/mutateAsync etc.
+    ...mutation,
     createFrom,
   };
 }

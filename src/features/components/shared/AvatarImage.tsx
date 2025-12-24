@@ -8,7 +8,7 @@ function AvatarImage({
   size,
 }: {
   src?: string;
-  alt: string;
+  alt?: string;
   size: number;
 }) {
   const baseUrl = API_URL?.replace(/\/$/, "") || "";

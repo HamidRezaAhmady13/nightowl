@@ -1,9 +1,5 @@
-// import { drawImageToCanvas, loadAndCacheImage } from "./thumbnailDrawing";
-
 import { drawImageToCanvas, loadAndCacheImage } from "./thumbnailDrawing";
-// import { drawImageToCanvas } from "./thumbnailUtils";
 
-// imageHelpers.ts
 export function drawOrLoadImage(
   snapped: number,
   ctx: CanvasRenderingContext2D,

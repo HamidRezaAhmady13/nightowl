@@ -91,8 +91,3 @@ export function getPostFiles(post: Post) {
     }) ?? []
   );
 }
-//
-
-// export function getPostFiles(post: Post) {
-//   return post.media ?? [];
-// }

@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-// const authToken = localStorage.getItem("token") || undefined;
+
 export const socket: Socket = io("http://localhost:3000", {
   path: "/socket.io",
   withCredentials: true,

@@ -1,11 +1,18 @@
 export const API_URL = "http://localhost:3000";
 
+export async function fetchUserById(userId: string): Promise<User> {
+  const response = await api.get<User>(`/users/${userId}`);
+  return response.data;
+}
+
 import axios, { AxiosInstance, AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 import {
   clearRefreshInterval,
   startRefreshInterval,
 } from "../utils/startRefreshInterval";
+import getToken from "./getMeAndUsers";
+import { User } from "../types";
 
 function extractMessage(err: AxiosError): string {
   const data = err.response?.data as any;
@@ -39,22 +46,31 @@ export async function doRefresh(): Promise<string> {
 
   const access = res.data?.access_token || res.data?.access || res.data?.token;
   if (!access) throw new Error("no-access-token");
+
   localStorage.setItem("token", access);
   api.defaults.headers.common["Authorization"] = `Bearer ${access}`;
   clearRefreshInterval();
   startRefreshInterval();
+
+  window.dispatchEvent(
+    new StorageEvent("storage", {
+      key: "token",
+      newValue: access,
+    })
+  );
+
   return access;
 }
 
 // attach token for every outgoing request
 api.interceptors.request.use((cfg: InternalAxiosRequestConfig) => {
   cfg.headers = cfg.headers ?? {};
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  if (token)
+
+  const freshToken = getToken();
+  if (freshToken)
     (cfg.headers as Record<string, string>)[
       "Authorization"
-    ] = `Bearer ${token}`;
+    ] = `Bearer ${freshToken}`;
   return cfg;
 });
 // startRefreshInterval
@@ -68,6 +84,7 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
     const msg = extractMessage(err);
+    console.log(msg);
 
     // Access expired → queue + single-flight refresh
     if (err.response?.status === 401 && msg === "ACCESS_TOKEN_EXPIRED") {
@@ -109,7 +126,7 @@ api.interceptors.response.use(
     // Refresh token gone → logout
     if (err.response?.status === 401 && isRefreshExpired(msg)) {
       try {
-        localStorage.removeItem("token");
+        // localStorage.removeItem("token");
       } finally {
         window.location.href = "/login";
       }

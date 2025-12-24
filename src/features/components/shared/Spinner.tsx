@@ -1,3 +1,4 @@
+"use client";
 type SpinnerProps = { message?: string; size?: number; padding?: boolean };
 
 export default function Spinner({

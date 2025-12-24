@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Post, UserPreview } from "@/features/types";
 import api from "../lib/api";
+import { queryKeys } from "../utils/queryKeys";
 
 export type PostsInfiniteData = {
   pages: { items: Post[] }[];
@@ -26,29 +27,34 @@ export function useToggleLike(postId: string, currentUser: UserPreview) {
       await api.post(`/posts/${postId}/toggle-like`);
     },
     onSuccess: () => {
-      // 1) Update feed cache
-      queryClient.setQueryData<PostsInfiniteData>(["posts"], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            items: page.items.map((p) =>
-              p.id === postId ? toggleLikeForPost(p, currentUser) : p
-            ),
-          })),
-        };
-      });
+      queryKeys.posts.all,
+        queryClient.setQueryData<PostsInfiniteData>(
+          queryKeys.posts.all,
+          (old) => {
+            if (!old) return old;
+            return {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                items: page.items.map((p) =>
+                  p.id === postId ? toggleLikeForPost(p, currentUser) : p
+                ),
+              })),
+            };
+          }
+        );
 
       // 2) Update single post cache
-      queryClient.setQueryData<Post>(["post", postId], (old) => {
+      queryClient.setQueryData<Post>(queryKeys.posts.detail(postId), (old) => {
         if (!old) return old;
         return toggleLikeForPost(old, currentUser);
       });
 
       // 3) Gentle revalidation
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-      queryClient.invalidateQueries({ queryKey: ["post", postId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.posts.detail(postId),
+      });
     },
   });
 }

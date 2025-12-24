@@ -10,15 +10,15 @@ export type PostActionsProps = {
   post: Post;
   currentUser: UserPreview;
   onCommentClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  limit: number;
+  // limit: number;
 };
 
 export default function PostActions({
   post,
   currentUser,
   onCommentClick,
-  limit,
-}: PostActionsProps) {
+}: // limit,
+PostActionsProps) {
   const isLiked = post.likedBy?.some((u) => u.id === currentUser.id);
   // const toggleLike = useToggleCommentLike(post.id);
   const toggleLike = useToggleLike(post.id, currentUser);
@@ -33,7 +33,6 @@ export default function PostActions({
           onClick={(e) => {
             e.stopPropagation();
             toggleLike.mutate();
-            // toggleLike.mutate({ postId: post.id, liked: isLiked ?? false });
           }}
         >
           <span>{isLiked ? "❤️" : "🤍"}</span>

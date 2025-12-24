@@ -12,7 +12,7 @@ import {
   tryMergeReplyIntoRoots,
 } from "../components/comment/commentsCacheHelpers";
 import { bumpCommentsCount, rollbackComments } from "../utils/cacheUtils";
-import { postsKey } from "../lib/postKey";
+import { queryKeys } from "../utils/queryKeys";
 
 export function useAddComment(
   currentUser?: User | null,
@@ -69,39 +69,45 @@ export function useAddComment(
       bumpCommentsCount(queryClient, postId, limit);
 
       if (!parentCommentId) {
-        queryClient.setQueryData(["comments", postId], (old: any) => {
-          if (!old || !old.pages?.length) {
+        queryClient.setQueryData(
+          queryKeys.comments.list(postId),
+          (old: any) => {
+            if (!old || !old.pages?.length) {
+              return {
+                pages: [{ data: [optimistic], page: 1 }],
+                pageParams: [1],
+              };
+            }
+            const first = old.pages[0] ?? { data: [], page: 1 };
             return {
-              pages: [{ data: [optimistic], page: 1 }],
-              pageParams: [1],
+              ...old,
+              pages: [
+                { ...first, data: [optimistic, ...(first.data ?? [])] },
+                ...old.pages.slice(1),
+              ],
             };
           }
-          const first = old.pages[0] ?? { data: [], page: 1 };
-          return {
-            ...old,
-            pages: [
-              { ...first, data: [optimistic, ...(first.data ?? [])] },
-              ...old.pages.slice(1),
-            ],
-          };
-        });
+        );
       } else {
-        queryClient.setQueryData(["replies", parentCommentId], (old: any) => {
-          if (!old || !old.pages?.length) {
+        queryClient.setQueryData(
+          queryKeys.replies.list(parentCommentId),
+          (old: any) => {
+            if (!old || !old.pages?.length) {
+              return {
+                pages: [{ data: [optimistic], page: 1 }],
+                pageParams: [1],
+              };
+            }
+            const first = old.pages[0] ?? { data: [], page: 1 };
             return {
-              pages: [{ data: [optimistic], page: 1 }],
-              pageParams: [1],
+              ...old,
+              pages: [
+                { ...first, data: [optimistic, ...(first.data ?? [])] },
+                ...old.pages.slice(1),
+              ],
             };
           }
-          const first = old.pages[0] ?? { data: [], page: 1 };
-          return {
-            ...old,
-            pages: [
-              { ...first, data: [optimistic, ...(first.data ?? [])] },
-              ...old.pages.slice(1),
-            ],
-          };
-        });
+        );
       }
 
       return { optimisticId, previousComments: null, previousPost: null };
@@ -121,70 +127,48 @@ export function useAddComment(
       const parentId = created.parentCommentId;
 
       if (parentId) {
-        queryClient.setQueryData(
-          ["comments", postId],
-          (old: any) => tryMergeReplyIntoRoots(old, parentId, created) // ensure this expects { pages: [{data,page}], ... }
+        queryClient.setQueryData(queryKeys.comments.list(postId), (old: any) =>
+          tryMergeReplyIntoRoots(old, parentId, created)
         );
       } else {
-        queryClient.setQueryData(["comments", postId], (old: any) => {
-          if (!old || !old.pages?.length) {
+        queryClient.setQueryData(
+          queryKeys.comments.list(postId),
+          (old: any) => {
+            if (!old || !old.pages?.length) {
+              return {
+                pages: [{ data: [toWithLikeState(created)], page: 1 }],
+                pageParams: [1],
+              };
+            }
+            const first = old.pages[0];
+
+            const replaced = first.data.map((c: any) =>
+              c.id === ctx?.optimisticId ? toWithLikeState(created) : c
+            );
             return {
-              pages: [{ data: [toWithLikeState(created)], page: 1 }],
-              pageParams: [1],
+              ...old,
+              pages: [{ ...first, data: replaced }, ...old.pages.slice(1)],
             };
           }
-          const first = old.pages[0];
-          // replace optimistic by id
-          const replaced = first.data.map((c: any) =>
-            c.id === ctx?.optimisticId ? toWithLikeState(created) : c
-          );
-          return {
-            ...old,
-            pages: [{ ...first, data: replaced }, ...old.pages.slice(1)],
-          };
-        });
+        );
       }
-      queryClient.invalidateQueries({ queryKey: ["comments", postId] });
       queryClient.invalidateQueries({
-        queryKey: ["post", postId],
+        queryKey: queryKeys.comments.list(postId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.posts.detail(postId),
         exact: true,
       });
-
-      queryClient.invalidateQueries({
-        // queryKey: postsKey(limit),
-        queryKey: postsKey,
-        exact: true,
-      });
-
-      // 1111111111111111111111111111
-      queryClient.setQueryData(
-        postsKey,
-        // postsKey(limit)
-        (old: any) => {
-          if (!old) return old;
-          console.log("Feed cache before update:", old);
-          return {
-            ...old,
-            pages: old.pages.map((page: any) => ({
-              ...page,
-              items: page.items.map((p: Post) =>
-                p.id === postId
-                  ? { ...p, commentsCount: (p.commentsCount ?? 0) + 1 }
-                  : p
-              ),
-            })),
-          };
-        }
-      );
     },
-    // 1111111111111111111111111111
 
-    //
-    // --- Always refresh ---
     onSettled: (_data, _error, vars) => {
       if (vars?.postId) {
-        queryClient.invalidateQueries({ queryKey: ["post", vars.postId] });
-        queryClient.invalidateQueries({ queryKey: ["comments", vars.postId] });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.posts.detail(vars.postId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.comments.list(vars.postId),
+        });
       }
     },
   });

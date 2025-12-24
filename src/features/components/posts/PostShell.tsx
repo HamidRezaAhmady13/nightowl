@@ -5,14 +5,13 @@ import { PostHeader } from "./PostHeader";
 import { PostContent } from "./PostContent";
 import PostMedia from "./PostMedia";
 import PostActions from "./PostActions";
-import { useCurrentUser } from "@/features/hooks/useCurrentUser";
+import { useCurrentUser } from "../AuthContext";
 
 type PostCardProps = {
   post: Post;
   onNavigate?: () => void;
   onCommentClick?: () => void;
   mode?: PostMode;
-  limit: number;
 };
 
 export default function PostShell({
@@ -20,9 +19,8 @@ export default function PostShell({
   onNavigate,
   onCommentClick,
   mode = "feed",
-  limit,
 }: PostCardProps) {
-  const { data: currentUser } = useCurrentUser();
+  const { user: currentUser } = useCurrentUser();
   if (!currentUser) return null;
 
   const isInteractive = typeof onNavigate === "function";
@@ -78,7 +76,6 @@ export default function PostShell({
 
       <div style={{ flex: "0 0 auto" }}>
         <PostActions
-          limit={limit}
           post={post}
           currentUser={currentUser}
           onCommentClick={(e) => {

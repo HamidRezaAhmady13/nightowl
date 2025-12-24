@@ -152,4 +152,89 @@ The backend emits unread count = 0, so your badge resets.
 ----brief----
  ----------------tonite ntf socket-----------
 
-              const limit=process.env.PAGE_LIMIT_ENV
+
+
+-------------
+
+Refined Frontend Build Order
+1.Project Skeleton & Config
+
+next-app creation, .env, ESLint/Prettier, absolute imports, folder structure.
+This is your foundation — don’t touch features yet.
+
+2.Types & Entities from Backend
+
+Generate types from backend entities (use openapi-typescript or zod schemas if possible).
+Keep them in a dedicated types/ folder.
+This avoids mismatches between backend and frontend and saves you from painful rewrites.
+
+3.React Query Provider
+
+Wire up QueryClientProvider globally.
+Create a dedicated queryKeys.ts file (like we discussed before) so all queries/mutations import keys from one place.
+Example:
+export const queryKeys = {
+  users: ['users'],
+  user: (id: string) => ['user', id],
+  posts: ['posts'],
+  post: (id: string) => ['post', id],
+};
+
+4.Reusable UI Components
+
+Build atoms first: buttons, inputs, modals, loaders.
+These will be reused everywhere, so it’s cheaper to build them early.
+
+5.Auth Flow
+
+Login/register components.
+Access + refresh token handling (React Query mutation + Axios interceptor).
+Protected routes with Next.js middleware or React Router guards.
+Once auth is stable, you can safely build the rest.
+
+6.Socket Provider
+
+Wire up Socket.IO client after auth.
+Connect only when user is authenticated.
+Expose a useSocket hook for components.
+
+7.API Features (React Query)
+
+Build CRUD features (feed, comments, notifications).
+Normalize cache shapes early (you already learned this with InfiniteComments).
+Tie socket events into React Query cache updates.
+
+8.Toast & Feedback
+
+Add toast notifications for success/error.
+Not critical to order, but improves UX once data flows are stable.
+
+9.Chat / Notifications (Socket.IO)
+
+Build real-time features (chat, notifications).
+Use socket events to update React Query cache and trigger toasts.
+
+10.WebRTC / Mediasoup (if needed)
+
+Always last — depends on auth, sockets, API, and sometimes Redis.
+Handle signaling via sockets, permissions via API, and media transport after everything else is solid.
+
+
+prev.items is not iterable
+
+src/features/components/SocketProvider.tsx (98:34) @ SocketProvider.useEffect.onNotification
+
+
+   96 |           return {
+   97 |             ...prev,
+>  98 |             items: [ntf, ...prev.items],
+      |                                  ^
+   99 |             total: prev.total + 1,
+  100 |           };
+  101 |         }
+Call Stack
+10
+
+Show 8 ignore-listed frame(s)
+SocketProvider.useEffect.onNotification
+src/features/components/SocketProvider.tsx (98:34)

@@ -6,7 +6,6 @@ import Spinner from "@/features/components/shared/Spinner";
 import Button from "@/features/components/shared/Button";
 import SearchItem from "@/features/components/search/UserItem";
 import { useSearch } from "@/features/hooks/useSearch";
-// import { useSearch } from "@/app/(protected)/hooks/useSearch";
 
 export default function SearchPage() {
   const {

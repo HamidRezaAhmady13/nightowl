@@ -6,11 +6,9 @@ export function startRefreshInterval() {
   if (refreshIntervalId) clearInterval(refreshIntervalId);
   refreshIntervalId = window.setInterval(
     () => {
-      // proactively call /auth/refresh before expiry
       doRefresh().catch(() => {
         clearInterval(refreshIntervalId!);
         refreshIntervalId = null;
-        // optional: redirect to login
       });
       console.log(refreshIntervalId);
     },

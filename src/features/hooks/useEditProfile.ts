@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useCurrentUser } from "./useCurrentUser";
 import { UpdateUserFormData, UpdateUserFormErrors, User } from "../types";
 import { api } from "../lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,7 +6,8 @@ import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { validateUpdateForm } from "../utils/validateUpdateForm";
-// import { validateUpdateForm } from "@/app/(protected)/app/utils/validateUpdateForm";
+import { useCurrentUser } from "../components/AuthContext";
+import { queryKeys } from "../utils/queryKeys";
 
 type ApiErrorResponse = {
   statusCode?: number;
@@ -20,7 +20,7 @@ type ApiErrorResponse = {
 export function useEditProfile() {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { data: currentUser } = useCurrentUser();
+  const { user: currentUser } = useCurrentUser();
   const [formData, setFormData] = useState<UpdateUserFormData>({
     username: "",
     email: "",
@@ -51,8 +51,10 @@ export function useEditProfile() {
     mutationFn: async (fd) => updateUser(fd),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-      toast.success("Profile updated!!!!!!");
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.user.current(undefined),
+      });
+      toast.success("Profile updated!");
       router.push(`/users/${currentUser!.username}`);
     },
 

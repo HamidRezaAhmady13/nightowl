@@ -1,7 +1,8 @@
-import { FeedPageGeneric } from "./post.types";
+import { FeedPageGeneric, Post } from "./post.types";
 import { User } from "./user.types";
 
 export type BackendNotificationEntity = {
+  id?: string;
   userId: string;
   type: string;
   smallBody: string;
@@ -13,6 +14,7 @@ export type BackendNotificationEntity = {
   readAt: Date;
   expireAt: Date;
   sourceId: string;
+  username?: string;
 };
 
 export type FrontendDates = {

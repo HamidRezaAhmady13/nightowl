@@ -1,15 +1,9 @@
-import Header from "@/features/components/header/Header";
+import ProtectedClient from "@/features/components/ProtectedClient";
 
-export default async function ProtectedLayout({
+export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="auth-wrapper">
-      {/* Maybe a centered card or background */}
-      <Header />
-      {children}
-    </div>
-  );
+  return <ProtectedClient>{children}</ProtectedClient>;
 }

@@ -7,5 +7,5 @@ export type HoverPreviewSetupProps = ThumbnailBaseProps & {
   bar: HTMLElement;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   setVisible: (v: boolean) => void;
-  imageCache: React.MutableRefObject<Record<number, HTMLImageElement>>;
+  imageCache: React.RefObject<Record<number, HTMLImageElement>>;
 };
